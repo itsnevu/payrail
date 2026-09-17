@@ -1,0 +1,66 @@
+// Default: SQLite so it runs with no setup.
+// For PostgreSQL switch provider = "postgresql" and DATABASE_URL in .env.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Merchant {
+  id            String    @id @default(cuid())
+  name          String
+  walletAddress String    @unique
+  createdAt     DateTime  @default(now())
+  invoices      Invoice[]
+}
+
+model Invoice {
+  id           String        @id @default(cuid())
+  // bytes32 = keccak256(id), used by the contract
+  onchainId    String        @unique
+  merchantId   String
+  merchant     Merchant      @relation(fields: [merchantId], references: [id])
+  customerName String?
+  description  String
+  // Amount in smallest USDC units (6 decimals), stored as a string for precision
+  amount       String
+  // PENDING | PAID | EXPIRED | CANCELLED (string because SQLite has no enums)
+  status       String        @default("PENDING")
+  dueAt        DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  payment      Payment?
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  invoiceId   String   @unique
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  txHash      String   @unique
+  payer       String
+  amount      String
+  blockNumber BigInt
+  paidAt      DateTime
+  createdAt   DateTime @default(now())
+}
+
+// Stores the last block the indexer has scanned
+model IndexerState {
+  id        Int    @id @default(1)
+  lastBlock BigInt
+}
+
+// Web Push subscriptions, one row per browser/device. Keyed by merchant so a
+// "paid" notification goes to whoever owns the invoice.
+model PushSubscription {
+  id         String   @id @default(cuid())
+  merchantId String
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+}

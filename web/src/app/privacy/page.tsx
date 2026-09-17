@@ -1,0 +1,29 @@
+import { ProseShell } from "@/components/prose/ProseShell";
+import { CONTACT_EMAIL } from "@/lib/links";
+
+export const metadata = { title: "Privacy: Payrail" };
+
+export default function Page() {
+  return (
+    <ProseShell>
+      <div className="mx-auto max-w-[70ch] px-5 py-16 sm:px-8 md:py-24">
+        <h1 className="text-[40px] font-semibold tracking-[-0.025em] text-ink">Privacy</h1>
+        <div className="mt-8 space-y-5 text-[16px] leading-relaxed text-ink-soft">
+          <p>There are no passwords and no identity verification. Merchants register with a wallet and a display name; buyers do not register at all.</p>
+          <p>What we store: the invoices you create (description, amount, customer name if you fill it in), the merchant wallet address, and the transaction hash of each verified payment. That is the data you asked us to reconcile; without it the service does not work.</p>
+          <p>The site sees your public wallet address once you connect, plus ordinary web request data such as IP address and browser type. That is used to serve the site and to spot abuse, nothing else.</p>
+          <p>USDC payments are recorded on a public blockchain. Anyone can read them and they cannot be deleted, by us or by you. Payment links are public to anyone holding the URL; share them only with the intended buyer.</p>
+          <p>Your browser talks directly to an RPC provider and to your wallet extension, each of which has its own policy.</p>
+          <p>We do not sell data and we do not run advertising or cross-site tracking.</p>
+          <p>
+            Questions:{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-2 hover:text-ink">
+              {CONTACT_EMAIL}
+            </a>
+          </p>
+        </div>
+        <p className="mt-12 border-t border-line pt-6 text-[14px] text-ink-faint">Last updated 17 September 2026</p>
+      </div>
+    </ProseShell>
+  );
+}

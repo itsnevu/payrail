@@ -4,6 +4,7 @@ import { Schibsted_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import PwaRegister from "@/components/PwaRegister";
+import Effects from "@/components/Effects";
 
 const grotesk = Schibsted_Grotesk({
   variable: "--font-grotesk",
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
         <PwaRegister />
+        <Effects />
       </body>
     </html>
   );

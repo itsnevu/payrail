@@ -584,3 +584,172 @@ body {
 .lp-stat .lp-note { max-width: 100%; }
 .lp-art-cta .lp-arrow { transition: transform 0.25s; }
 .lp-art-cta:hover .lp-arrow { transform: translateX(6px); }
+
+/* ============================================================
+   Material & motion layer (UI upgrade, Sep 2026).
+   Additive: glass chrome, hairline gradient edges, pointer spotlight,
+   scroll reveal, sheen on primary actions, shimmer skeletons.
+   Nothing here changes layout; it only changes how surfaces feel.
+   ============================================================ */
+
+html { --scroll-progress: 0; }
+
+/* Ambient light behind everything plus grain to kill banding. Both sit behind
+   content and never catch the pointer. */
+body { position: relative; isolation: isolate; }
+body::before {
+  content: "";
+  position: fixed; inset: -20% 0 0 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(55% 40% at 12% 0%, rgba(255, 255, 255, 0.07), transparent 60%),
+    radial-gradient(45% 35% at 92% 100%, rgba(255, 255, 255, 0.045), transparent 60%);
+}
+body::after {
+  content: "";
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Scroll progress: a 2px line at the very top. */
+.fx-progress {
+  position: fixed; top: 0; left: 0; height: 2px; width: 100%; z-index: 60; pointer-events: none;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--scroll-progress));
+  background: linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.85));
+}
+
+/* Glass chrome for both headers. */
+.lp-header,
+.fx-glass {
+  background: rgba(10, 10, 10, 0.62);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Gradient hairline: a 1px edge, brighter at the top-left where the light comes from. */
+.surface,
+.surface-interactive,
+.card,
+.lp-compare-col,
+.lp-stat {
+  position: relative;
+}
+.surface::after,
+.surface-interactive::after,
+.card::after,
+.lp-compare-col::after,
+.lp-stat::after {
+  content: "";
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.08));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.card { border-color: transparent; }
+
+/* Pointer spotlight on interactive surfaces (mouse only; --mx/--my written by <Effects/>). */
+@media (pointer: fine) {
+  .surface-interactive::before,
+  .card::before {
+    content: "";
+    position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0;
+    opacity: 0; transition: opacity 240ms ease;
+    background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.07), transparent 60%);
+  }
+  .surface-interactive:hover::before,
+  .card:hover::before { opacity: 1; }
+  .card > * { position: relative; z-index: 1; }
+}
+
+/* Reveal on scroll. Before JS runs nothing is hidden; only once .fx-ready is set do targets
+   start hidden, so a no-JS or crawler render is never blank. */
+.fx-ready .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 640ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--reveal-delay, 0ms),
+    transform 640ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.fx-ready .reveal.is-in { opacity: 1; transform: none; }
+.lp-hero .reveal { --reveal-delay: 0ms; }
+@media (prefers-reduced-motion: reduce) {
+  .fx-ready .reveal { opacity: 1; transform: none; transition: none; }
+  .fx-progress { display: none; }
+}
+
+/* Primary actions: press feedback and a sheen that sweeps across on hover. */
+.lp-pill, .btn {
+  position: relative; overflow: hidden;
+  transition: background-color 0.2s, color 0.2s, transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s;
+}
+.lp-pill:active, .btn:active { transform: scale(0.97); }
+.lp-pill-ink::after, .lp-pill-green::after, .btn-primary::after, .lp-art-cta::after {
+  content: "";
+  position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lp-pill-ink:hover::after, .lp-pill-green:hover::after, .btn-primary:hover::after, .lp-art-cta:hover::after { left: 120%; }
+.btn-primary:hover { box-shadow: 0 8px 24px -10px rgba(255,255,255,0.35); }
+
+/* Inputs: inset well, brighter ring on focus, no jump. */
+.input {
+  background: var(--field);
+  box-shadow: var(--shadow-inset);
+  transition: box-shadow 0.18s, border-color 0.18s;
+}
+.input:focus { box-shadow: var(--shadow-inset), 0 0 0 3px rgba(255,255,255,0.14); }
+
+/* Status badges: PAID gets a live dot and a soft glow, the rest stay quiet. */
+.badge { position: relative; letter-spacing: 0.02em; }
+.badge.bg-green {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.25), 0 0 18px -4px rgba(255,255,255,0.45);
+  padding-left: 1.25rem;
+}
+.badge.bg-green::before {
+  content: ""; position: absolute; left: 0.55rem; top: 50%; width: 6px; height: 6px; margin-top: -3px;
+  border-radius: 50%; background: #0a0a0a;
+  animation: fx-pulse 1.8s ease-in-out infinite;
+}
+@keyframes fx-pulse { 0%, 100% { opacity: 0.35; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1); } }
+
+/* Skeletons: a shimmer instead of a flat pulse. */
+.animate-pulse {
+  animation: none;
+  position: relative; overflow: hidden;
+  background: var(--field);
+}
+.animate-pulse::after {
+  content: ""; position: absolute; inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: fx-shimmer 1.4s infinite;
+}
+@keyframes fx-shimmer { to { transform: translateX(100%); } }
+
+/* Tables: rows tint on hover. */
+tbody tr { transition: background-color 0.15s; }
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+/* Page enter: content fades in on route change. */
+main { animation: fx-enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes fx-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { main { animation: none; } }
+
+/* Native selects: custom chevron, same well as inputs, room for the arrow. */
+select.input {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a8a8a8' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  cursor: pointer;
+}
+select.input option { background: var(--surface); color: var(--ink); }

@@ -10,7 +10,7 @@ import { LINKS } from "@/lib/links";
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-20 border-b border-line bg-bg/85 backdrop-blur">
+      <header className="fx-glass sticky top-0 z-20">
         <div className="mx-auto flex h-[68px] w-full max-w-[1180px] items-center justify-between px-5 sm:px-8">
           <Link href="/" aria-label="Payrail home" className="inline-flex items-start gap-1">
             <Wordmark markSize={36} />

@@ -744,7 +744,6 @@ select.input option { background: var(--surface); color: var(--ink); }
   font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--ink-soft);
 }
-.lp-eyebrow::before { content: ""; width: 1.5rem; height: 1px; background: #00000040; }
 .lp-hero-title {
   font-size: clamp(2.5rem, 5.4vw, 4.75rem); line-height: 0.98; letter-spacing: -0.035em; font-weight: 500;
   text-wrap: balance;

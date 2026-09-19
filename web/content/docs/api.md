@@ -89,9 +89,7 @@ The invoice object:
   "default": 4663,
   "chains": [
     { "chainId": 4663, "name": "Robinhood Chain", "testnet": false, "explorerUrl": "https://robinhoodchain.blockscout.com",
-      "paymentProcessor": "0x...", "usdc": "0x...", "rpc": "/api/rpc/4663" },
-    { "chainId": 5042, "name": "Arc Testnet", "testnet": true, "explorerUrl": null,
-      "paymentProcessor": "0x...", "usdc": "0x...", "rpc": "/api/rpc/5042" }
+      "paymentProcessor": "0xD591A0d397179dE0692d50f43AC450C6cDF9C66D", "usdc": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168", "rpc": "/api/rpc/4663" }
   ]
 }
 ```
@@ -108,8 +106,7 @@ Requires an `x-indexer-secret` header equal to `INDEXER_SECRET`. Without it, `40
 
 ```json
 { "ok": true, "chains": [
-  { "chainId": 4663, "scanned": 1843, "applied": 2, "from": "18204311", "to": "18206153" },
-  { "chainId": 5042, "scanned": 120, "applied": 0, "from": "9911", "to": "10030" }
+  { "chainId": 4663, "scanned": 1843, "applied": 2, "from": "18204311", "to": "18206153" }
 ] }
 ```
 

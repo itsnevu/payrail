@@ -229,7 +229,7 @@ export function PayPhone({
                 250.00 <small>USDC</small>
               </span>
             </span>
-            <span className="ip-chip">Arc</span>
+            <span className="ip-chip">Robinhood</span>
           </div>
         </div>
 

@@ -201,7 +201,7 @@ function Trust() {
           </h2>
           <p className="lp-body lp-muted max-w-sm">
             Screenshots can be faked. Bank statements can be misread. An onchain event can be neither, and it is the
-            only source of truth Payrail trusts, on Arc and on Robinhood Chain alike.
+            only source of truth Payrail trusts.
           </p>
         </div>
         <TrustCards />
@@ -213,7 +213,7 @@ function Trust() {
 const STATS = [
   { figure: "1", unit: "transaction", tag: "pay()", note: "From the buyer: approve USDC, then pay. Nothing else to do." },
   { figure: "0", unit: "USDC held", tag: "custody", note: "Not by the contract, not by us. Funds land in your wallet in the same block." },
-  { figure: "2", unit: "chains", tag: "Arc · Robinhood", note: "Pick the network per invoice. The receipt from the browser and an indexer on each chain do the rest." },
+  { figure: "2", unit: "ways to verify", tag: "txHash · indexer", note: "The receipt from the browser, and an indexer watching Robinhood Chain as the safety net." },
 ];
 
 function Closing() {
@@ -242,7 +242,7 @@ function Closing() {
           ))}
           <li className="lp-tile">
             <Link href={LINKS.app} className="lp-art lp-art-cta lp-stat">
-              <span className="lp-stat-tag">Free · Arc · Robinhood Chain</span>
+              <span className="lp-stat-tag">Free · Robinhood Chain</span>
               <span className="lp-stat-big">
                 <span className="lp-figure">Get started</span>
                 <span className="lp-stat-unit">Connect a wallet. No account, no KYC to send a link.</span>
@@ -264,7 +264,7 @@ function Closing() {
               Payrail is reconciliation software, not a payment service provider. USDC moves directly from buyer to
               merchant on a public blockchain.
             </p>
-            <span className="lp-small lp-muted">Not audited. Runs on Arc and Robinhood Chain; every invoice picks its network.</span>
+            <span className="lp-small lp-muted">Not audited. Running on Robinhood Chain.</span>
           </div>
           <div className="flex flex-col items-start gap-5 lg:items-end">
             {(LINKS.x || LINKS.telegram) && (

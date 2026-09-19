@@ -8,9 +8,6 @@ dotenv.config();
  * reads them all from web/src/lib/deployments.json (written by scripts/deploy.ts).
  *
  *   localhost          hardhat node, MockUSDC, chain 31337
- *   arcTestnet         Arc Testnet. chainId/RPC are PLACEHOLDERS: verify against the
- *                      official Arc and Circle docs before deploying.
- *   arcMainnet         no defaults on purpose; every value must come from a verified .env
  *   robinhoodTestnet   Robinhood Chain Testnet, chain 46630 (Arbitrum Orbit, ETH gas)
  *   robinhoodMainnet   Robinhood Chain, chain 4663 (Arbitrum Orbit, ETH gas)
  *
@@ -38,16 +35,6 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {},
     localhost: { url: "http://127.0.0.1:8545" },
-    arcTestnet: {
-      url: process.env.ARC_RPC_URL || "https://rpc.testnet.arc.network",
-      chainId: Number(process.env.ARC_CHAIN_ID || 5042),
-      accounts: deployerKey,
-    },
-    arcMainnet: {
-      url: process.env.ARC_MAINNET_RPC_URL || "http://unset.invalid",
-      chainId: Number(process.env.ARC_MAINNET_CHAIN_ID || 0),
-      accounts: deployerKey,
-    },
     robinhoodTestnet: {
       url: process.env.ROBINHOOD_TESTNET_RPC_URL || "https://rpc.testnet.chain.robinhood.com",
       chainId: 46630,
@@ -63,8 +50,6 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      arcTestnet: process.env.EXPLORER_API_KEY || "",
-      arcMainnet: process.env.EXPLORER_API_KEY || "",
       robinhoodTestnet: BLOCKSCOUT_KEY,
       robinhoodMainnet: BLOCKSCOUT_KEY,
     },

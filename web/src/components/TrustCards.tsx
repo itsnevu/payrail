@@ -39,7 +39,7 @@ await markPaid(invoice.id, receipt.transactionHash);`,
     code: `model Payment {
   id        String   @id @default(cuid())
   invoiceId String   @unique
-  chainId   Int      // Arc or Robinhood Chain
+  chainId   Int      // Robinhood Chain
   txHash    String   @unique
   payer     String
   amount    String

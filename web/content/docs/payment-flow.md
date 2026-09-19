@@ -12,7 +12,7 @@ From the buyer's side, paying a Payrail invoice is opening one page and pressing
 
 The payment page shows the merchant name, the description and the amount, read from the database through `GET /api/invoices/:id`. The buyer connects a wallet; the page checks their USDC balance and the `allowance` already granted to `PaymentProcessor`.
 
-If the invoice is already PAID or CANCELLED, the button does not appear. Every invoice belongs to one network, Arc or Robinhood Chain, chosen when it was created; the page shows it under **Network**, and if the wallet is on another chain it asks to switch before the button appears. On Robinhood Chain the buyer also needs a little ETH for gas; on Arc gas is paid in USDC.
+If the invoice is already PAID or CANCELLED, the button does not appear. Every invoice is paid on Robinhood Chain; the page shows it under **Network**, and if the wallet is on another chain it asks to switch before the button appears. The buyer needs a little ETH on Robinhood Chain for gas.
 
 ## Two transactions
 

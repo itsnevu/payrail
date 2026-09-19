@@ -32,6 +32,6 @@ Merchant creates a USDC invoice, the system generates a payment link, the buyer 
 
 ## What it is not
 
-It is not a payment gateway and not a custodian: we never hold your USDC and cannot reverse a transaction. It is not a full invoicing suite; there are no taxes, discounts or partial payments yet. It is not audited. It runs on two chains, Arc and Robinhood Chain, and every invoice is pinned to one of them when it is created. See [Risks and limits](/docs/risks-and-limits).
+It is not a payment gateway and not a custodian: we never hold your USDC and cannot reverse a transaction. It is not a full invoicing suite; there are no taxes, discounts or partial payments yet. It is not audited. It runs on Robinhood Chain. See [Risks and limits](/docs/risks-and-limits).
 
 Next: [Creating invoices](/docs/creating-invoices).

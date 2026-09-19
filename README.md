@@ -14,7 +14,7 @@ PAYRAIL/
     ├── src/app/(app)/          dashboard /app, /invoices/new, /invoices/[id], /pay/[id]
     ├── content/                Markdown for docs, blog and the whitepaper
     ├── src/app/api/            REST API (invoices, merchants, verify, indexer, export, stats)
-    ├── src/lib/chains.ts       every supported network (Arc, Robinhood Chain, local) in one place
+    ├── src/lib/chains.ts       every supported network (Robinhood Chain, its testnet, local) in one place
     ├── src/lib/verify.ts       tx verification + per-chain onchain event indexer
     ├── src/app/api/rpc/        same-origin JSON-RPC relay (Robinhood Chain is ISP-filtered in ID)
     └── prisma/schema.prisma    Merchant, Invoice (chainId), Payment, IndexerState (per chain)
@@ -37,18 +37,17 @@ Backend ◄── (a) frontend posts txHash to POST /api/invoices/:id/verify   (
 
 Onchain `invoiceId = keccak256(abi.encode(keccak256(invoice.id), merchant, amount))`, derived by the contract from the payment terms, so wrong terms can never lock a real invoice. Already-paid keys revert with `InvoiceAlreadyPaid`.
 
-## Networks (dual chain)
+## Networks
 
-Payrail runs on more than one chain at once. Every invoice is pinned to one network when it is created (`Invoice.chainId`); the buyer's wallet is switched to that network, the backend verifies the receipt on that chain, and the indexer keeps one cursor per chain.
+Payrail runs on **Robinhood Chain**. The app is multi-chain underneath (mainnet, testnet, local) and every invoice is pinned to one network when it is created (`Invoice.chainId`); the buyer's wallet is switched to that network, the backend verifies the receipt on that chain, and the indexer keeps one cursor per chain.
 
 | Network | chainId | Gas | Explorer | Status |
 |---|---|---|---|---|
 | Hardhat (local) | 31337 | ETH | none | works end to end |
-| Arc Testnet | 5042 (placeholder) | USDC | none configured | chainId, RPC and USDC address still unverified |
 | Robinhood Chain | 4663 | ETH | robinhoodchain.blockscout.com | **deployed 20 Sep 2026**: PaymentProcessor `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D`, billing token USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` (6 decimals) |
 | Robinhood Chain Testnet | 46630 | ETH | explorer.testnet.chain.robinhood.com | configured, not deployed |
 
-The registry is `web/src/lib/chains.ts`. A chain is offered as soon as it has a `PaymentProcessor` entry in `web/src/lib/deployments.json` (or the `NEXT_PUBLIC_*_ADDRESS_<chainId>` overrides); `NEXT_PUBLIC_CHAINS=4663,5042` narrows and orders the list. `GET /api/chains` lists what a deployment accepts.
+The registry is `web/src/lib/chains.ts`. A chain is offered as soon as it has a `PaymentProcessor` entry in `web/src/lib/deployments.json` (or the `NEXT_PUBLIC_*_ADDRESS_<chainId>` overrides); `NEXT_PUBLIC_CHAINS=4663` narrows and orders the list (production uses exactly that). `GET /api/chains` lists what a deployment accepts.
 
 **Robinhood Chain RPC.** `rpc.mainnet.chain.robinhood.com` is content-filtered by Indonesian ISPs. The browser and the wallet therefore use the same-origin relay `POST /api/rpc/4663`, which the server forwards to the real endpoint (allow-listed methods only, capped, rate limited). For local development on a filtered ISP, run the launchpad repo's `npm run rpc:proxy` and set `RPC_URL_4663=http://127.0.0.1:8545`.
 
@@ -101,15 +100,10 @@ The same script serves every chain; it writes `contracts/deployments/<chainId>.j
 
 ### Robinhood Chain (4663) or its testnet (46630)
 
-1. `contracts/.env`: `DEPLOYER_PRIVATE_KEY` (funded with a little ETH on that chain) and `USDC_ADDRESS_ROBINHOODMAINNET` (or `..._ROBINHOODTESTNET`): the bridged USDC contract, taken from the official bridge or Blockscout, 6 decimals. The script refuses to run without it and checks the address has code.
+1. `contracts/.env`: `DEPLOYER_PRIVATE_KEY`, funded with a little ETH on that chain. Optionally `USDC_ADDRESS_ROBINHOODMAINNET` to bill in a token other than USDG.
 2. `cd contracts && npm run go:robinhood` (or `go:robinhood-testnet`). This one-shot script picks a working RPC (with a local forwarder when the ISP filters the public one), checks the deployer has ETH, probes the token on chain, deploys, verifies on Blockscout and writes both deployment records. `-- --dry-run` checks everything without deploying. Only `DEPLOYER_PRIVATE_KEY` is required; the token defaults to USDG (the 6-decimal dollar on Robinhood Chain) unless `USDC_ADDRESS_ROBINHOODMAINNET` is set.
 3. `web/.env`: `CONFIRMATIONS_4663=2`; optionally `RPC_URL_4663` for a dedicated provider. The browser relay needs nothing.
 4. Restart the web app; the chain appears in the invoice form and `/api/chains`.
-
-### Arc Testnet
-
-1. `contracts/.env`: `ARC_RPC_URL`, `ARC_CHAIN_ID`, `USDC_ADDRESS_ARCTESTNET`. **Verify all three against the Arc/Circle documentation**; the values in this repo are placeholders.
-2. `cd contracts && npm run deploy:arc`, then set `NEXT_PUBLIC_EXPLORER_URL_5042` in `web/.env` once an explorer is known.
 
 ### Production
 

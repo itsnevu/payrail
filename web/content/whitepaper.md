@@ -8,7 +8,7 @@ date: 2026-09-17
 
 ## Abstract
 
-Merchants who accept stablecoin payments face the same problem as merchants who accept bank transfers: money arrives without saying which bill it pays. Payrail solves this by making the **payment transaction carry the invoice ID** as an argument to a contract, which forwards USDC directly to the merchant and emits a structured event. The backend matches the event to an invoice with three checks (ID, recipient, amount) and marks it PAID. The contract never holds funds, has no owner, and cannot be changed. Verification is idempotent and runs over two independent routes so that no payment is missed because of a client failure. Payrail runs on two chains, Arc and Robinhood Chain, with one identical contract on each; every invoice is pinned to one of them, and the design of the key makes a payment on the wrong chain harmless.
+Merchants who accept stablecoin payments face the same problem as merchants who accept bank transfers: money arrives without saying which bill it pays. Payrail solves this by making the **payment transaction carry the invoice ID** as an argument to a contract, which forwards USDC directly to the merchant and emits a structured event. The backend matches the event to an invoice with three checks (ID, recipient, amount) and marks it PAID. The contract never holds funds, has no owner, and cannot be changed. Verification is idempotent and runs over two independent routes so that no payment is missed because of a client failure. Payrail runs on Robinhood Chain; every invoice is pinned to the network it was created on, and the design of the key makes a payment on any other network harmless.
 
 ## 1. Motivation
 
@@ -126,7 +126,7 @@ The indexer catches payments the client never reported: closed tabs, dropped net
 ## 6. Buyer flow
 
 1. Open `/pay/:id`; the page reads the invoice from the API and shows merchant, description and amount.
-2. Connect a wallet; the page switches it to the invoice's chain (Arc or Robinhood Chain) if needed.
+2. Connect a wallet; the page switches it to Robinhood Chain if needed.
 3. If `allowance(buyer, PaymentProcessor) < amount`, send `USDC.approve(PaymentProcessor, amount)`.
 4. Send `PaymentProcessor.pay(onchainId, merchant.walletAddress, amount)`; arguments are filled from the database, not from user input.
 5. After confirmation, post the `txHash` to `/verify`; repeat while `202`.
@@ -134,18 +134,15 @@ The indexer catches payments the client never reported: closed tabs, dropped net
 
 Two transactions (one if the allowance already covers it). No protocol fee; the merchant receives exactly `amount`.
 
-## 7. Networks
+## 7. Network
 
-Payrail is dual chain: **Arc** (Circle's chain, USDC as the gas token) and **Robinhood Chain** (an Arbitrum Orbit L2 settling to Ethereum, ETH as the gas token). The contract in section 4 is deployed once per chain, byte for byte the same, each pointing at that chain's USDC. Nothing in the contract knows about the other chain.
+Payrail runs on **Robinhood Chain**, an Arbitrum Orbit L2 settling to Ethereum, with ETH as the gas token. The contract in section 4 is deployed there at `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D`, pointing at the chain's dollar stablecoin, USDG (`0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`, 6 decimals). The testnet (chain 46630) and a local hardhat node run the same contract for rehearsals and development.
 
-The multi-chain part lives entirely in the application:
+Three properties of the choice matter for the design:
 
-1. **An invoice is pinned to one chain** at creation (`Invoice.chainId`). The merchant picks the network in the form; the buyer's wallet is switched to it before paying. The choice cannot be changed afterwards, because the payment link is a promise about where the money will show up.
-2. **The key does not include the chain.** `invoiceKey(salt, merchant, amount)` gives the same `bytes32` on Arc and on Robinhood Chain. This is deliberate: it keeps the contract identical everywhere and keeps the key derivable without knowing the deployment. The consequence is handled one layer up: `applyPaymentLog` receives the chain the event was seen on and rejects it unless it equals the invoice's `chainId`. A buyer who pays the right terms on the wrong chain has sent USDC to the merchant on that chain, recorded under the same key there, but the invoice stays PENDING and the merchant refunds by hand. The right-chain payment still goes through, because the wrong-chain one never touched that contract.
-3. **One verifier and one indexer cursor per chain.** The fast route reads the receipt from the RPC of the invoice's chain. The indexer scans every enabled chain independently (`IndexerState.chainId`), so a slow or failing RPC on one network never stalls the other. `CONFIRMATIONS` is set per chain.
-4. **RPC access is a first-class concern.** Robinhood Chain's public RPC is content-filtered by some ISPs, which would make the payment page unusable on those networks. The browser and the wallet therefore talk to a same-origin relay (`/api/rpc/<chainId>`) that forwards an allow-list of read and broadcast methods from the server. The relay is a transport choice, not a trust boundary: the decision to mark PAID still comes from a log signed by chain consensus.
-
-Adding a third chain is a registry entry and a deployment; no schema or contract change.
+1. **Gas is cheap and paid in ETH.** A payment is one `approve` and one `pay`, each a few cents at most. The buyer needs a little ETH on Robinhood Chain on top of the stablecoin.
+2. **An invoice is pinned to its network** at creation (`Invoice.chainId`), and the key in section 3 does not include it: `invoiceKey(salt, merchant, amount)` is the same `bytes32` on every deployment. `applyPaymentLog` therefore receives the network the event was seen on and refuses to mark PAID unless it equals the invoice's `chainId`. A payment of the right terms on the testnet, or on any other deployment, lands under the same key there and leaves the real invoice untouched. The verifier and the indexer each keep one cursor per network, so a slow RPC on one never stalls another.
+3. **RPC access is a first-class concern.** Robinhood Chain's public RPC is content-filtered by some ISPs, which would make the payment page unusable on those connections. The browser and the wallet therefore talk to a same-origin relay (`/api/rpc/4663`) that forwards an allow-list of read and broadcast methods from the server. The relay is a transport choice, not a trust boundary: the decision to mark PAID still comes from a log signed by chain consensus.
 
 ## 8. Failure mode analysis
 
@@ -163,16 +160,16 @@ Adding a third chain is a registry entry and a deployment; no schema or contract
 | Another contract emits `PaymentReceived` | Ignored by the address filter | Built in |
 | Invoice creation without authentication | Spam invoices; fake links in a merchant's name | Funds still go to the merchant's wallet. **SIWE required before production.** |
 | USDC freezes the merchant wallet | `transferFrom` reverts; invoices unpayable | Out of our control |
-| Buyer pays the right terms on the wrong chain | Same key, other chain; invoice stays PENDING; USDC reached the merchant there | Backend rejects by `chainId`; merchant refunds by hand. Wallet is switched to the right chain before paying. |
-| One chain's RPC is down or filtered | That chain's invoices verify late | Per-chain indexer cursor; same-origin relay for the browser; the other chain is unaffected |
+| Buyer pays the right terms on another network (e.g. the testnet) | Same key, other deployment; invoice stays PENDING | Backend rejects by `chainId`; wallet is switched to Robinhood Chain before paying |
+| Public RPC is down or filtered | Invoices verify late | Same-origin relay for the browser; `RPC_URL_4663` can point the server at a second provider |
 
 ## 9. What does not exist yet
 
-Merchant authentication. Automatic expiry (`dueAt` and `EXPIRED` are in the schema; nothing sets them). Partial payments. Webhooks. Multi-token: USDC only, on both chains. Paying an invoice on a chain other than the one it was created for (section 7). Escrow, which is deliberately **not** an evolution of this contract, because it would break the first principle in section 2. An independent audit; the contract has had two internal review passes and a live end-to-end attack test, which is not the same thing.
+Merchant authentication. Automatic expiry (`dueAt` and `EXPIRED` are in the schema; nothing sets them). Partial payments. Webhooks. Multi-token and multi-chain: one dollar token on Robinhood Chain (section 7). Escrow, which is deliberately **not** an evolution of this contract, because it would break the first principle in section 2. An independent audit; the contract has had two internal review passes and a live end-to-end attack test, which is not the same thing.
 
 ## 10. Conclusion
 
-Payrail shows that stablecoin payment reconciliation does not require a custodian, on Arc and on Robinhood Chain alike. One contract with no balance, one hash linking an offchain invoice to an onchain event, and one idempotent function reached from two directions are enough to turn "I sent it, please check" into a status that changes on its own. The rest (authentication, expiry, notifications) is ordinary application work that can be added without touching the part that cannot be changed.
+Payrail shows that stablecoin payment reconciliation on Robinhood Chain does not require a custodian. One contract with no balance, one hash linking an offchain invoice to an onchain event, and one idempotent function reached from two directions are enough to turn "I sent it, please check" into a status that changes on its own. The rest (authentication, expiry, notifications) is ordinary application work that can be added without touching the part that cannot be changed.
 
 ---
 

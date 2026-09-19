@@ -41,7 +41,7 @@ This page spells out what the other pages only mention in passing. If you are go
 - **Partial payments or instalments.** One invoice, one `pay()`, full amount or more.
 - **Webhooks and notifications.** Today you see PAID by opening the dashboard.
 - **Escrow.** Funds go straight to the merchant. If you need a hold until goods arrive, that is a different product.
-- **Multi-token.** USDC only. Multi-chain exists (Arc and Robinhood Chain), but one invoice is one chain: a payment on the other network does not count and has to be refunded by hand.
+- **Multi-token, multi-chain.** One dollar token, one chain: Robinhood Chain. A payment on any other network does not count and has to be refunded by hand.
 - **An independent audit.**
 
 ## What will not change

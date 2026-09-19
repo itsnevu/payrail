@@ -52,11 +52,9 @@ The only way to make an invoice PAID is to **actually pay it**. That is the one 
 - **`202` for "not yet".** If the tx is not mined or confirmations are short, the server answers `202` and the page retries, instead of a `400` that makes the buyer think something broke.
 - **Configurable `CONFIRMATIONS`.** `1` for hardhat, `2` or `3` for real networks, set per chain.
 
-## Two chains, two cursors
+## One chain, pinned per invoice
 
-Payrail runs on Arc and on Robinhood Chain. Both routes above are per chain. The fast route reads the receipt from the RPC of the chain the invoice was created on. The indexer keeps a separate "last block" for each chain and scans them independently, so a slow RPC on one never delays PAID on the other.
-
-The interesting question was what happens when a buyer pays the right merchant and the right amount on the *wrong* chain. The key we derive does not include the chain, so that payment lands under the same `invoiceId`, just on the other contract. `applyPaymentLog` therefore takes one more argument, the chain the event was seen on, and refuses to mark PAID unless it matches the invoice. The USDC still reached the merchant on that chain; the merchant refunds it by hand, and the invoice stays open for the payment it was actually waiting for. Rare in practice, because the page switches the wallet to the right chain before the button appears, but "rare" is not a reason to leave it undefined.
+Payrail runs on Robinhood Chain, and every invoice records the network it was created on. That sounds redundant with a single chain until you run a testnet and a local node next to it: the key we derive does not include the chain, so the same terms hash to the same `invoiceId` on every deployment. `applyPaymentLog` therefore takes one more argument, the network the event was seen on, and refuses to mark PAID unless it matches the invoice. A payment of the right terms on the wrong deployment leaves the real invoice open for the payment it was actually waiting for. Rare, because the page switches the wallet to Robinhood Chain before the button appears, but "rare" is not a reason to leave it undefined.
 
 One more thing Robinhood Chain taught us: an RPC endpoint can be unreachable for reasons that have nothing to do with the chain. Some ISPs filter it. The payment page therefore talks to the chain through our own origin (`/api/rpc/4663`), which forwards a short allow-list of methods. That changes where the bytes travel, not what we trust: PAID is still decided from a log the chain signed.
 

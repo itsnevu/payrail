@@ -16,8 +16,6 @@ npm install
 npm test
 npm run node            # local chain on :8545
 npm run deploy:local    # deploy + write addresses into ../web
-npm run deploy:arc      # Arc Testnet (needs .env)
-npm run deploy:arc-mainnet   # refuses to run without verified .env values
 npm run go:robinhood              # ONE SHOT: Robinhood Chain 4663. Needs only DEPLOYER_PRIVATE_KEY in .env
 npm run go:robinhood-testnet      # same for chain 46630; add `-- --dry-run` to check without deploying
 npm run deploy:robinhood          # raw hardhat deploy, chain 4663 (needs USDC_ADDRESS_ROBINHOODMAINNET + working RPC)
@@ -56,7 +54,7 @@ Scope: `PaymentProcessor.sol` and its integration points (`web/src/lib/usdc.ts`,
 ### Remaining before mainnet (operational, not contract)
 
 - **Independent audit.** Two internal review passes and an attack replay are not a third-party audit. Budget one before real money.
-- **Verify the target chain.** All Arc chain IDs, RPC URLs and the USDC address in this repo are placeholders. Confirm them from official Arc and Circle sources, and confirm the ERC-20 USDC on that chain has 6 decimals (the app assumes it does). Robinhood Chain: PaymentProcessor `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D` deployed 20 September 2026 against USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` (6 decimals), see `deployments/4663.json`. Blockscout source verification is still pending (the explorer answered with a Cloudflare challenge); re-run `npx hardhat verify --network robinhoodMainnet 0xD591A0d397179dE0692d50f43AC450C6cDF9C66D 0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`.
+- **Robinhood Chain deployment.** PaymentProcessor `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D` deployed 20 September 2026 against USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` (6 decimals), see `deployments/4663.json`. Blockscout source verification is still pending (the explorer answered with a Cloudflare challenge); re-run `npx hardhat verify --network robinhoodMainnet 0xD591A0d397179dE0692d50f43AC450C6cDF9C66D 0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`.
 - **One deployment per chain.** `usdc` is immutable, so each network gets its own PaymentProcessor; the web app keys everything by `chainId`.
 - **Verify source on the explorer** after deploy (`EXPLORER_API_KEY` + `npx hardhat verify <address> <usdc>`).
 - **Commit the deployment record.** `deploy.ts` overwrites `web/src/lib/deployment.json`; keep a per-chain copy under version control.

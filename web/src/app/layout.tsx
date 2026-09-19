@@ -19,7 +19,7 @@ const mono = JetBrains_Mono({
 
 const TITLE = "Payrail";
 const DESCRIPTION =
-  "Create a USDC invoice on Arc or Robinhood Chain, send a payment link, and let the onchain payment be matched to the right invoice. Automatic, with no funds ever held.";
+  "Create a USDC invoice on Robinhood Chain, send a payment link, and let the onchain payment be matched to the right invoice. Automatic, with no funds ever held.";
 
 export const metadata: Metadata = {
   // Set NEXT_PUBLIC_APP_URL in production so shared links resolve absolutely.

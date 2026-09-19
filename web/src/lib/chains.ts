@@ -3,7 +3,9 @@ import { hardhat } from "viem/chains";
 import deployments from "./deployments.json";
 
 /**
- * Every network Payrail can run on, in one place.
+ * Every network Payrail can run on, in one place. Payrail is a Robinhood Chain product:
+ * mainnet (4663) is the live network, the testnet (46630) is for rehearsals, and hardhat
+ * (31337) for local development.
  *
  * An invoice is pinned to one chain at creation (`Invoice.chainId`). The buyer pays on that
  * chain, the backend verifies on that chain, and the indexer scans each enabled chain on its
@@ -20,7 +22,7 @@ import deployments from "./deployments.json";
  *     content-filtered by Indonesian ISPs; the relay forwards from the server instead.
  */
 
-export type ChainKey = "hardhat" | "arcTestnet" | "robinhoodMainnet" | "robinhoodTestnet";
+export type ChainKey = "hardhat" | "robinhoodMainnet" | "robinhoodTestnet";
 
 export type ChainConfig = {
   key: ChainKey;
@@ -64,13 +66,6 @@ const ENV = {
     pp: process.env.NEXT_PUBLIC_PAYMENT_PROCESSOR_ADDRESS_31337,
     usdc: process.env.NEXT_PUBLIC_USDC_ADDRESS_31337,
   },
-  5042: {
-    rpc: process.env.RPC_URL_5042,
-    browserRpc: process.env.NEXT_PUBLIC_RPC_URL_5042,
-    explorer: process.env.NEXT_PUBLIC_EXPLORER_URL_5042,
-    pp: process.env.NEXT_PUBLIC_PAYMENT_PROCESSOR_ADDRESS_5042,
-    usdc: process.env.NEXT_PUBLIC_USDC_ADDRESS_5042,
-  },
   4663: {
     rpc: process.env.RPC_URL_4663,
     browserRpc: process.env.NEXT_PUBLIC_RPC_URL_4663,
@@ -108,19 +103,6 @@ const BASES: Base[] = [
     publicRpc: "http://127.0.0.1:8545",
     explorerUrl: "",
     nativeCurrency: hardhat.nativeCurrency,
-    testnet: true,
-    relayByDefault: false,
-  },
-  {
-    // The chainId and RPC are placeholders that MUST be verified against the official
-    // Arc and Circle documentation before a deploy. See contracts/README.md.
-    key: "arcTestnet",
-    id: 5042,
-    name: "Arc Testnet",
-    short: "Arc",
-    publicRpc: "https://rpc.testnet.arc.network",
-    explorerUrl: "",
-    nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
     testnet: true,
     relayByDefault: false,
   },

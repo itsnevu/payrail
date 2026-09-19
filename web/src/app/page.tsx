@@ -9,6 +9,7 @@ import { PhoneDefs } from "@/components/Phone";
 import MatchGame from "@/components/MatchGame";
 import PayDemo from "@/components/PayDemo";
 import TrustCards from "@/components/TrustCards";
+import HeroFx from "@/components/HeroFx";
 
 function Header() {
   return (
@@ -56,6 +57,7 @@ const HERO_EVENTS: { id: string; who: string; amount: string; state: "paid" | "w
 function Hero() {
   return (
     <section className="lp-hero" data-hero="true">
+      <HeroFx />
       <div className="lp-hero-copy">
         <p className="lp-eyebrow">USDC invoices · Non-custodial · Verified onchain</p>
         <h1 className="lp-hero-title" style={{ "--reveal-delay": "60ms" } as React.CSSProperties}>
@@ -240,7 +242,7 @@ function Closing() {
           ))}
           <li className="lp-tile">
             <Link href={LINKS.app} className="lp-art lp-art-cta lp-stat">
-              <span className="lp-stat-tag">Free · Arc Testnet</span>
+              <span className="lp-stat-tag">Free · Arc · Robinhood Chain</span>
               <span className="lp-stat-big">
                 <span className="lp-figure">Get started</span>
                 <span className="lp-stat-unit">Connect a wallet. No account, no KYC to send a link.</span>
@@ -262,7 +264,7 @@ function Closing() {
               Payrail is reconciliation software, not a payment service provider. USDC moves directly from buyer to
               merchant on a public blockchain.
             </p>
-            <span className="lp-small lp-muted">Not audited. Running on Arc Testnet.</span>
+            <span className="lp-small lp-muted">Not audited. Runs on Arc and Robinhood Chain; every invoice picks its network.</span>
           </div>
           <div className="flex flex-col items-start gap-5 lg:items-end">
             {(LINKS.x || LINKS.telegram) && (

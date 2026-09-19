@@ -17,7 +17,7 @@ const mono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "Payrail: Know exactly which invoice got paid.";
+const TITLE = "Payrail";
 const DESCRIPTION =
   "Create a USDC invoice, send a payment link, and let the onchain payment be matched to the right invoice. Automatic, with no funds ever held.";
 

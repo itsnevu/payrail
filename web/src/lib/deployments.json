@@ -1,9 +1,0 @@
-{
-  "31337": {
-    "network": "localhost",
-    "chainId": 31337,
-    "usdc": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    "paymentProcessor": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-    "deployedAt": "2026-09-17T21:54:04.198Z"
-  }
-}

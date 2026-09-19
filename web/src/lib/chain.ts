@@ -1,12 +1,35 @@
-/**
- * ABIs and token constants. Chain selection lives in ./chains.ts: import `CHAINS`,
- * `getChain`, `DEFAULT_CHAIN_ID` and `txUrl` from there. Every invoice carries its own
- * `chainId`, so nothing here assumes a single network any more.
- */
-export { CHAINS, CHAIN_IDS, DEFAULT_CHAIN, DEFAULT_CHAIN_ID, getChain, requireChain, chainName, txUrl, addressUrl } from "./chains";
-export type { ChainConfig, ChainKey } from "./chains";
+import { defineChain, type Chain } from "viem";
+import { hardhat } from "viem/chains";
+import deployment from "./deployment.json";
+
+export const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || deployment.chainId || 31337);
+export const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || "http://127.0.0.1:8545";
+export const EXPLORER_URL = process.env.NEXT_PUBLIC_EXPLORER_URL || "";
+
+export const PAYMENT_PROCESSOR_ADDRESS = (process.env.NEXT_PUBLIC_PAYMENT_PROCESSOR_ADDRESS ||
+  deployment.paymentProcessor) as `0x${string}`;
+export const USDC_ADDRESS = (process.env.NEXT_PUBLIC_USDC_ADDRESS || deployment.usdc) as `0x${string}`;
 
 export const USDC_DECIMALS = 6;
+
+/**
+ * Arc Testnet. The chainId and RPC values below are placeholders that MUST be
+ * verified against the official Arc and Circle documentation before use.
+ */
+export const arcTestnet = defineChain({
+  id: 5042,
+  name: "Arc Testnet",
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
+  rpcUrls: { default: { http: [RPC_URL] } },
+  blockExplorers: EXPLORER_URL
+    ? { default: { name: "Arc Explorer", url: EXPLORER_URL } }
+    : undefined,
+  testnet: true,
+});
+
+export const chain: Chain =
+  CHAIN_ID === hardhat.id ? { ...hardhat, rpcUrls: { default: { http: [RPC_URL] } } } : arcTestnet;
+
 
 export const erc20Abi = [
   {
@@ -26,6 +49,9 @@ export const erc20Abi = [
   },
 ] as const;
 
+export function txUrl(hash: string) {
+  return EXPLORER_URL ? `${EXPLORER_URL.replace(/\/$/, "")}/tx/${hash}` : "";
+}
 /**
  * PaymentProcessor ABI typed `as const` so viem/wagmi can infer event and function argument
  * types. Written inline on purpose (not `import ... .json`) because a JSON import loses

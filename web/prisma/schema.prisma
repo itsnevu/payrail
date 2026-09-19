@@ -21,8 +21,8 @@ model Invoice {
   id           String        @id @default(cuid())
   // bytes32 = keccak256(abi.encode(keccak256(id), merchant, amount)), used by the contract
   onchainId    String        @unique
-  // Network this invoice must be paid on (31337 hardhat, 5042 Arc Testnet,
-  // 4663 Robinhood Chain, 46630 Robinhood Chain Testnet). See web/src/lib/chains.ts.
+  // Network this invoice must be paid on (31337 hardhat, 4663 Robinhood Chain,
+  // 46630 Robinhood Chain Testnet). See web/src/lib/chains.ts.
   // The default keeps rows created before dual-chain support valid (all were local).
   chainId      Int           @default(31337)
   merchantId   String

@@ -69,6 +69,7 @@ export default function PayDemo() {
   return (
     <>
       <div className="lp-col lp-col-left order-1">
+        <p className="lp-kicker">02 · Pay and verify</p>
         <h2 className="lp-head">
           Send the link.
           <br />

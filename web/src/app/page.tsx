@@ -10,6 +10,7 @@ import MatchGame from "@/components/MatchGame";
 import PayDemo from "@/components/PayDemo";
 import TrustCards from "@/components/TrustCards";
 import HeroFx from "@/components/HeroFx";
+import MobileNav from "@/components/MobileNav";
 
 function Header() {
   return (
@@ -58,6 +59,7 @@ function Hero() {
   return (
     <section className="lp-hero" data-hero="true">
       <HeroFx />
+      <div className="lp-hero-inner">
       <div className="lp-hero-copy">
         <p className="lp-eyebrow">USDC invoices · Non-custodial · Verified onchain</p>
         <h1 className="lp-hero-title" style={{ "--reveal-delay": "60ms" } as React.CSSProperties}>
@@ -104,21 +106,62 @@ function Hero() {
           ))}
         </ul>
       </div>
-
+      </div>
+      <a href="#problem" className="lp-scroll-cue" aria-label="Scroll to the next section">
+        <span className="lp-scroll-cue-line" />
+        <span>Scroll</span>
+      </a>
     </section>
+  );
+}
+
+/** A slow mono ticker of the kind of rows the indexer writes. Pure CSS marquee, duplicated for the loop. */
+const TICKER = [
+  ["PaymentReceived", "INV-0231", "250.00 USDC", "block 18,204,311"],
+  ["PaymentReceived", "INV-0230", "1,180.00 USDC", "block 18,204,290"],
+  ["link opened", "INV-0232", "640.00 USDC", "2m ago"],
+  ["invoice created", "INV-0233", "95.00 USDC", "just now"],
+  ["PaymentReceived", "INV-0229", "3,400.00 USDC", "block 18,203,977"],
+  ["CSV exported", "September", "12 invoices", "1 click"],
+];
+
+function Ticker() {
+  const row = (k: string) => (
+    <ul className="lp-ticker-row" aria-hidden={k === "b" || undefined} key={k}>
+      {TICKER.map(([ev, id, amt, meta], i) => (
+        <li key={`${k}${i}`}>
+          <span className={`lp-dot${ev === "PaymentReceived" ? "" : " lp-dot-wait"}`} />
+          <b>{ev}</b>
+          <span>{id}</span>
+          <span>{amt}</span>
+          <span className="lp-ticker-meta">{meta}</span>
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <div className="lp-ticker" aria-label="Example indexer activity">
+      <div className="lp-ticker-track">
+        {row("a")}
+        {row("b")}
+      </div>
+    </div>
   );
 }
 
 /** Sits between the hero and the pay walkthrough: the problem, in one breath, before the second phone. */
 function Problem() {
   return (
-    <section className="lp-section lp-cards lp-problem">
+    <section id="problem" className="lp-section lp-cards lp-problem">
       <div className="lp-col lp-cards-head">
-        <h2 className="lp-head max-w-xl">
+        <div className="max-w-xl">
+        <p className="lp-kicker">01 · The problem</p>
+        <h2 className="lp-head">
           Getting paid is easy.
           <br />
           <span className="lp-muted">Knowing which invoice got paid is not.</span>
         </h2>
+        </div>
         <p className="lp-body lp-muted max-w-sm">
           A USDC transfer carries an amount and a sender, and nothing else. Try matching one yourself: that step is
           the whole product.
@@ -152,6 +195,7 @@ function Steps() {
     <section className="lp-section lp-cards">
       <div className="lp-col lp-cards-head">
         <div className="max-w-xl">
+          <p className="lp-kicker">03 · How it works</p>
           <h2 className="lp-head">
             Three steps.
             <br />
@@ -194,11 +238,14 @@ function Trust() {
     <div className="lp-on-field">
       <section className="lp-section lp-cards">
         <div className="lp-col lp-cards-head">
-          <h2 className="lp-head max-w-xl">
+          <div className="max-w-xl">
+          <p className="lp-kicker">04 · Trust</p>
+          <h2 className="lp-head">
             Verified from the chain,
             <br />
             <span className="lp-muted">not from anyone&apos;s word.</span>
           </h2>
+          </div>
           <p className="lp-body lp-muted max-w-sm">
             Screenshots can be faked. Bank statements can be misread. An onchain event can be neither, and it is the
             only source of truth Payrail trusts.
@@ -221,11 +268,17 @@ function Closing() {
     <div className="lp-on-night">
       <section className="lp-section lp-cards lp-closing">
         <div className="lp-col lp-cards-head">
-          <h2 className="lp-head max-w-xl">
+          <div className="max-w-xl">
+          <p className="lp-kicker">05 · Start</p>
+          <h2 className="lp-head">
             Stop matching statements.
             <br />
             <span className="lp-muted">Start sending links.</span>
           </h2>
+          </div>
+          <p className="lp-body lp-muted max-w-sm">
+            One invoice, one link, one transaction. Everything after that is a row you can export.
+          </p>
         </div>
         <ul className="lp-col lp-grid lp-grid-4">
           {STATS.map((s) => (
@@ -296,6 +349,13 @@ function Closing() {
               <Link href={LINKS.privacy}>Privacy</Link>
             </nav>
           </div>
+          <div className="lp-footer-bottom">
+            <span className="lp-small lp-muted">&copy; {new Date().getFullYear()} Payrail</span>
+            <span className="lp-status-pill">
+              <span className="lp-dot" />
+              Robinhood Chain · chain 4663
+            </span>
+          </div>
         </footer>
       </section>
     </div>
@@ -304,15 +364,17 @@ function Closing() {
 
 export default function Home() {
   return (
-    <main className="lp flex-1 overflow-x-clip">
+    <main className="lp flex-1 overflow-x-clip pb-14 sm:pb-0">
       <PhoneDefs />
       <Header />
       <Hero />
+      <Ticker />
       <Problem />
       <PayVerify />
       <Steps />
       <Trust />
       <Closing />
+      <MobileNav />
     </main>
   );
 }

@@ -102,6 +102,7 @@ export default function Effects() {
         raf = 0;
         const max = root.scrollHeight - window.innerHeight;
         root.style.setProperty("--scroll-progress", max > 0 ? String(window.scrollY / max) : "0");
+        root.classList.toggle("is-scrolled", window.scrollY > 24);
       });
     };
     onScroll();

@@ -24,6 +24,14 @@ export default function HeroFx() {
     if (!canvas) return;
     const fine = window.matchMedia("(pointer: fine)").matches;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // the stage loop stays on its poster frame for anyone who asked the OS for less motion
+    if (reduce) {
+      const v = canvas.parentElement?.querySelector<HTMLVideoElement>(".lp-hero-art video");
+      if (v) {
+        v.pause();
+        v.removeAttribute("autoplay");
+      }
+    }
     if (!fine || reduce) return;
 
     const hero = canvas.closest<HTMLElement>(".lp-hero");

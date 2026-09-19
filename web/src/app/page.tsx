@@ -84,15 +84,17 @@ function Hero() {
       </div>
 
       <div className="lp-hero-art" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero/p-2200.jpg"
-          srcSet="/hero/p-1200.jpg 1200w, /hero/p-2200.jpg 2200w"
-          sizes="100vw"
-          alt=""
-          fetchPriority="high"
-          decoding="async"
-          draggable={false}
+        {/* The render as a short loop; the still is the poster and the fallback under reduced motion. */}
+        <video
+          src="/hero/p.webm"
+          poster="/hero/p-2200.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          aria-hidden="true"
         />
         <ul className="lp-hero-strip" aria-label="Example invoice activity">
           {HERO_EVENTS.map((e) => (

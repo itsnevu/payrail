@@ -762,7 +762,7 @@ select.input option { background: var(--surface); color: var(--ink); }
 @media (min-width: 64rem) { .lp-hero-art { aspect-ratio: auto; height: min(78vh, 46rem); } }
 /* pointer dot field (canvas drawn by <HeroFx/>); sits above the bloom, below the copy */
 .lp-hero-dots { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.lp-hero-art img {
+.lp-hero-art img, .lp-hero-art video {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: 50% 50%; transform-origin: 50% 50%;
   /* parallax against the pointer; --sx/--sy written by <HeroFx/> */
@@ -778,7 +778,7 @@ select.input option { background: var(--surface); color: var(--ink); }
 }
 .lp-hero-art.is-lit::before { opacity: 1; }
 @media (prefers-reduced-motion: no-preference) {
-  .lp-hero-art img { animation: lp-hero-settle 14s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .lp-hero-art img, .lp-hero-art video { animation: lp-hero-settle 14s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 }
 @keyframes lp-hero-settle { from { transform: scale(1.08); } to { transform: scale(1); } }
 /* the strip sits on the stage, so fade its base to black for legibility */

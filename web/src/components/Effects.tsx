@@ -16,6 +16,8 @@ import { useEffect } from "react";
  * Everything is disabled under prefers-reduced-motion.
  */
 const REVEAL_SELECTOR = [
+  ".lp-hero-copy > *",
+  ".lp-hero-strip",
   ".lp-section > .lp-col",
   ".lp-section > .lp-portal",
   ".lp-tile",

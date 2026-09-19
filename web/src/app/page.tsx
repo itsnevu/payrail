@@ -1,11 +1,11 @@
+import type React from "react";
 import Link from "next/link";
 import { LINKS } from "@/lib/links";
 import ConnectButton from "@/components/ConnectButton";
 import { PactMark } from "@/components/Logo";
 import StepArt from "@/components/StepArt";
 import { ArrowIcon, TelegramIcon, XIcon } from "@/components/Icons";
-import { DashboardPhone, PayPhone, PhoneDefs } from "@/components/Phone";
-import { HeroBackdrop } from "@/components/HeroBackdrop";
+import { PayPhone, PhoneDefs } from "@/components/Phone";
 
 function Header() {
   return (
@@ -43,28 +43,63 @@ function Header() {
   );
 }
 
+/** Three rows the dashboard would show a minute after a link is paid. Same shape as the Phone mock data. */
+const HERO_EVENTS: { id: string; who: string; amount: string; state: "paid" | "waiting"; meta: string }[] = [
+  { id: "INV-0231", who: "Northwind Studio", amount: "250.00", state: "paid", meta: "block 18,204,311" },
+  { id: "INV-0230", who: "Kite & Co", amount: "1,180.00", state: "paid", meta: "block 18,204,290" },
+  { id: "INV-0232", who: "Halden Press", amount: "640.00", state: "waiting", meta: "link sent 2m ago" },
+];
+
 function Hero() {
   return (
-    <section className="lp-section lp-hero lp-glass" data-hero="true">
-      <HeroBackdrop />
-      <div className="lp-col lp-col-left order-1">
-        <h1 className="lp-display">Know exactly which invoice got paid.</h1>
+    <section className="lp-hero" data-hero="true">
+      <div className="lp-hero-art" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero/p-2200.jpg"
+          srcSet="/hero/p-1200.jpg 1200w, /hero/p-2200.jpg 2200w"
+          sizes="100vw"
+          alt=""
+          fetchPriority="high"
+          decoding="async"
+          draggable={false}
+        />
       </div>
-      <div className="lp-portal order-2">
-        <DashboardPhone />
-      </div>
-      <div className="lp-col lp-col-right order-3 flex flex-col items-start gap-6">
-        <div className="flex w-full max-w-sm flex-col gap-6">
-          <p className="lp-body lp-muted">
-            Create a USDC invoice, send a payment link, and let Payrail match the onchain payment to the right invoice.
-            Funds land in your wallet, not ours.
-          </p>
-          <Link href={LINKS.app} className="lp-pill lp-pill-ink self-center">
+
+      <div className="lp-hero-copy">
+        <p className="lp-eyebrow">USDC invoices · Non-custodial · Verified onchain</p>
+        <h1 className="lp-hero-title" style={{ "--reveal-delay": "60ms" } as React.CSSProperties}>
+          Know exactly <em>which invoice</em> got paid.
+        </h1>
+        <p className="lp-body lp-muted lp-hero-lede" style={{ "--reveal-delay": "120ms" } as React.CSSProperties}>
+          Create a USDC invoice, send a payment link, and let Payrail match the onchain payment to the right invoice.
+          Funds land in your wallet, not ours.
+        </p>
+        <div className="lp-hero-actions" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
+          <Link href={LINKS.app} className="lp-pill lp-pill-ink">
             Get started free
           </Link>
+          <Link href={LINKS.whitepaper} className="lp-pill lp-pill-ghost">
+            Read the whitepaper
+            <ArrowIcon className="ml-2 h-4 w-4" />
+          </Link>
         </div>
-        <p className="lp-small lp-muted">No holding account. No matching bank statements by hand.</p>
+        <p className="lp-hero-note" style={{ "--reveal-delay": "240ms" } as React.CSSProperties}>
+          No holding account. No matching bank statements by hand.
+        </p>
       </div>
+
+      <ul className="lp-hero-strip" style={{ "--reveal-delay": "320ms" } as React.CSSProperties} aria-label="Example invoice activity">
+        {HERO_EVENTS.map((e) => (
+          <li key={e.id}>
+            <span className={`lp-dot${e.state === "waiting" ? " lp-dot-wait" : ""}`} />
+            <span>
+              <b>{e.id}</b> · {e.who} · {e.amount} USDC · {e.meta}
+            </span>
+            <span className="lp-strip-tag">{e.state === "paid" ? "PAID" : "PENDING"}</span>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

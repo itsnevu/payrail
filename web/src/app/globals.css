@@ -242,7 +242,7 @@ body {
 /* soft green rounded panel variant */
 .lp-panel-wrap { max-width: 1536px; margin-inline: auto; padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 4vw, 4rem); }
 .lp-panel { background: linear-gradient(160deg, #f4f4f7 0%, #e7e8ee 100%); border-radius: 28px; max-width: none; padding: 4rem clamp(1.25rem, 3.5vw, 3.5rem); }
-@media (min-width: 64rem) { .lp-panel { min-height: calc(0.82 * var(--vh)); padding-block: 4rem; } }
+@media (min-width: 64rem) { .lp-panel { min-height: 0; padding-block: 5rem; } }
 @media not (min-width: 64rem) {
   .lp-panel > .lp-col { text-align: center; align-items: center; }
   .lp-panel > .lp-col > * { margin-inline: auto; }
@@ -251,6 +251,7 @@ body {
 
 /* card sections */
 .lp-cards { align-content: center; row-gap: clamp(2rem, 5vh, 3.5rem); }
+@media (min-width: 64rem) { .lp-cards { min-height: 0; padding-block: clamp(5rem, 10vh, 8rem); } }
 .lp-cards-head { display: flex; flex-direction: column; gap: 1.5rem; }
 @media (min-width: 64rem) { .lp-cards-head { flex-direction: row; justify-content: space-between; align-items: flex-end; gap: 3rem; } }
 .lp-grid { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 1.25rem; }
@@ -264,9 +265,10 @@ body {
   position: relative; display: flex; align-items: center; justify-content: center;
   aspect-ratio: 1; border-radius: 1.75rem; overflow: hidden;
 }
-.lp-art-field { background: var(--field); }
+.lp-art-field { background: var(--surface); box-shadow: var(--edge-top), var(--shadow-raised); transition: box-shadow 0.3s; }
+.lp-tile:hover .lp-art-field { box-shadow: var(--edge-top), var(--shadow-lifted); }
 .lp-art-surface { background: var(--surface); }
-.lp-art-stat { aspect-ratio: auto; min-height: 15rem; box-shadow: var(--shadow-card); }
+.lp-art-stat { aspect-ratio: auto; min-height: 15rem; box-shadow: var(--edge-top), var(--shadow-raised); }
 .lp-art-outline { box-shadow: inset 0 0 0 1px #ffffff29; }
 .lp:not(.lp-on-night) .lp-art-outline { box-shadow: inset 0 0 0 1px #00000024; }
 .lp-art-cta { background: var(--green); color: var(--on-ink); transition: background-color 0.2s; }
@@ -509,7 +511,7 @@ body {
 
 /* ---------- closing stats ---------- */
 .lp-stat { justify-content: space-between; transition: box-shadow 0.25s, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.lp-stat.lp-art-outline:hover { box-shadow: inset 0 0 0 1px #ffffff55; transform: translateY(-3px); }
+.lp-stat.lp-art-outline:hover { box-shadow: inset 0 0 0 1px #ffffff55, 0 18px 40px -24px #000; transform: translateY(-3px); }
 .lp-stat.lp-art-cta:hover { transform: translateY(-3px); }
 .lp-stat-tag { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--ink-faint); }
 .lp-art-cta .lp-stat-tag { color: #9a9a9a; }
@@ -784,7 +786,7 @@ select.input option { background: var(--surface); color: var(--ink); }
   border-radius: 1.75rem; padding: clamp(1.25rem, 2vw, 1.75rem); background: var(--surface);
   box-shadow: var(--edge-top), var(--shadow-raised);
 }
-.lp-match-invoice { background: var(--ink); color: var(--on-ink); }
+.lp-match-invoice { background: var(--ink); color: var(--on-ink); box-shadow: var(--shadow-lifted); }
 .lp-match-tag { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--ink-faint); }
 .lp-match-invoice .lp-match-tag { color: #9a9a9a; }
 .lp-match-who { font-size: 1.0625rem; margin-top: 0.75rem; }
@@ -869,20 +871,37 @@ select.input option { background: var(--surface); color: var(--ink); }
 /* --- Trust: flip cards --- */
 .lp-flip { display: block; width: 100%; text-align: left; perspective: 1400px; border-radius: 1.75rem; }
 .lp-flip-inner {
-  position: relative; display: block; min-height: 15rem; transform-style: preserve-3d;
+  position: relative; display: block; transform-style: preserve-3d;
   transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .lp-flip.is-flipped .lp-flip-inner { transform: rotateY(180deg); }
-.lp-flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.lp-flip-back { transform: rotateY(180deg); background: var(--ink); color: var(--on-ink); box-shadow: none; }
-.lp-flip-front { transition: box-shadow 0.25s, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.lp-flip:hover .lp-flip-front { transform: translateY(-3px); box-shadow: var(--shadow-lifted); }
-.lp-flip-hint { margin-top: auto; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); }
+.lp-flip-face {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0.75rem;
+  min-height: 19rem; padding: clamp(1.5rem, 2.2vw, 2rem);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+/* the front is in flow and sets the card height; the back is laid over it */
+.lp-flip-front { position: relative; transition: box-shadow 0.3s, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.lp-flip-back { position: absolute; inset: 0; transform: rotateY(180deg); background: var(--ink); color: var(--on-ink); box-shadow: var(--shadow-lifted); }
+.lp-flip:hover .lp-flip-front { transform: translateY(-3px); box-shadow: var(--edge-top), var(--shadow-lifted); }
+.lp-flip:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.lp-flip .lp-figure { font-size: clamp(1.5rem, 2vw, 2rem); line-height: 1.1; }
+.lp-flip .lp-note { max-width: 100%; font-size: 0.9375rem; line-height: 1.55; }
+.lp-flip-hint {
+  margin-top: auto; padding-top: 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft);
+  transition: color 0.2s, gap 0.2s;
+}
+.lp-flip-hint::after { content: "97"; font-size: 0.9em; transition: transform 0.25s; }
+.lp-flip:hover .lp-flip-hint { color: var(--ink); gap: 0.6rem; }
+.lp-flip:hover .lp-flip-hint::after { transform: translate(1px, -1px); }
 .lp-flip-back .lp-flip-hint { color: #8a8a8a; }
+.lp-flip-back .lp-flip-hint::after { content: "A9"; }
+.lp-flip.is-flipped:hover .lp-flip-hint { color: #f2f2f2; }
 .lp-flip-file { font-family: var(--font-mono); font-size: 0.75rem; color: #9a9a9a; }
 .lp-flip-code {
-  display: block; overflow: auto; white-space: pre; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.55;
-  color: #e6e6e6; margin-block: 0.5rem; max-height: 11rem;
+  display: block; width: 100%; overflow: auto; white-space: pre; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.55;
+  color: #e6e6e6; margin-block: 0.25rem; flex: 1 1 auto; min-height: 0;
 }
 @media (prefers-reduced-motion: reduce) { .lp-flip-inner { transition: none; } }
 

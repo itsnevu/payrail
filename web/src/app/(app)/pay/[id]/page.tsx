@@ -8,10 +8,11 @@ import StatusBadge from "@/components/StatusBadge";
 import PayStepper from "@/components/PayStepper";
 import AddToHomeHint from "@/components/AddToHomeHint";
 import { formatUsdc, shortAddr, toSalt } from "@/lib/usdc";
-import { PAYMENT_PROCESSOR_ADDRESS, USDC_ADDRESS, paymentProcessorAbi, erc20Abi, chain, txUrl } from "@/lib/chain";
+import { paymentProcessorAbi, erc20Abi } from "@/lib/chain";
+import { chainName, getChain, txUrl } from "@/lib/chains";
 
 type Invoice = {
-  id: string; onchainId: `0x${string}`; description: string; amount: string; status: string;
+  id: string; onchainId: `0x${string}`; chainId: number; description: string; amount: string; status: string;
   dueAt?: string | null;
   merchant: { name: string; walletAddress: `0x${string}` };
   payment?: { txHash: string } | null;
@@ -40,25 +41,32 @@ export default function PayPage() {
   }, [inv?.status, step, load]);
 
   const amount = inv ? BigInt(inv.amount) : 0n;
-  const wrongChain = isConnected && chainId !== chain.id;
+  // The invoice pins its chain. Every read and write below is addressed to that chain
+  // explicitly, so a wallet sitting on another network never reads the wrong contract.
+  const cfg = getChain(inv?.chainId);
+  const invChainId = cfg?.id;
+  const PP = cfg?.paymentProcessor;
+  const USDC = cfg?.usdc;
+  const ready = Boolean(cfg && PP && USDC);
+  const wrongChain = isConnected && invChainId !== undefined && chainId !== invChainId;
 
   // Read the buyer USDC balance and allowance
   const { data: balance } = useReadContract({
-    address: USDC_ADDRESS, abi: erc20Abi, functionName: "balanceOf",
-    args: address ? [address] : undefined, query: { enabled: !!address },
+    address: USDC, abi: erc20Abi, functionName: "balanceOf", chainId: invChainId,
+    args: address ? [address] : undefined, query: { enabled: !!address && ready },
   });
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: USDC_ADDRESS, abi: erc20Abi, functionName: "allowance",
-    args: address ? [address, PAYMENT_PROCESSOR_ADDRESS] : undefined, query: { enabled: !!address },
+    address: USDC, abi: erc20Abi, functionName: "allowance", chainId: invChainId,
+    args: address && PP ? [address, PP] : undefined, query: { enabled: !!address && ready },
   });
   // Check onchain whether the invoice is already paid (double-check next to the DB)
   const { data: paidOnchain } = useReadContract({
-    address: PAYMENT_PROCESSOR_ADDRESS, abi: paymentProcessorAbi, functionName: "isPaid",
-    args: inv ? [inv.onchainId] : undefined, query: { enabled: !!inv },
+    address: PP, abi: paymentProcessorAbi, functionName: "isPaid", chainId: invChainId,
+    args: inv ? [inv.onchainId] : undefined, query: { enabled: !!inv && ready },
   });
 
   const { writeContractAsync } = useWriteContract();
-  const { isSuccess: payMined } = useWaitForTransactionReceipt({ hash: payHash });
+  const { isSuccess: payMined } = useWaitForTransactionReceipt({ hash: payHash, chainId: invChainId });
 
   // Once the pay tx is mined, ask the backend to verify (retry until final)
   useEffect(() => {
@@ -83,15 +91,15 @@ export default function PayPage() {
   }, [payMined, payHash, inv?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handlePay() {
-    if (!inv || !address) return;
+    if (!inv || !address || !PP || !USDC || invChainId === undefined) return;
     setError("");
     try {
       // 1) Approve if the allowance is short
       if ((allowance ?? 0n) < amount) {
         setStep("approving");
         await writeContractAsync({
-          address: USDC_ADDRESS, abi: erc20Abi, functionName: "approve",
-          args: [PAYMENT_PROCESSOR_ADDRESS, amount],
+          address: USDC, abi: erc20Abi, functionName: "approve", chainId: invChainId,
+          args: [PP, amount],
         });
         // tunggu allowance ter-update
         for (let i = 0; i < 10; i++) {
@@ -103,7 +111,7 @@ export default function PayPage() {
       // 2) Call PaymentProcessor.pay
       setStep("paying");
       const hash = await writeContractAsync({
-        address: PAYMENT_PROCESSOR_ADDRESS, abi: paymentProcessorAbi, functionName: "pay",
+        address: PP, abi: paymentProcessorAbi, functionName: "pay", chainId: invChainId,
         args: [toSalt(inv.id), inv.merchant.walletAddress, amount],
       });
       setPayHash(hash);
@@ -115,6 +123,14 @@ export default function PayPage() {
   }
 
   if (!inv) return <p>Loading invoice…</p>;
+  if (!ready) {
+    return (
+      <div className="card mx-auto max-w-md space-y-2 text-sm">
+        <div className="font-semibold">This invoice is on {chainName(inv.chainId)}</div>
+        <p className="text-ink-soft">This Payrail deployment is not configured for that network, so it cannot be paid here. Ask {inv.merchant.name} for a new link.</p>
+      </div>
+    );
+  }
 
   const isPaid = inv.status === "PAID" || paidOnchain === true || step === "done";
   const insufficient = balance !== undefined && balance < amount;
@@ -149,9 +165,9 @@ export default function PayPage() {
               </dd>
             </div>
           )}
-          <div className="flex justify-between"><dt>Network</dt><dd>{chain.name}</dd></div>
+          <div className="flex justify-between"><dt>Network</dt><dd>{cfg!.name}</dd></div>
           <div className="flex justify-between"><dt>To wallet</dt><dd className="font-mono">{shortAddr(inv.merchant.walletAddress)}</dd></div>
-          <div className="flex justify-between"><dt>Contract</dt><dd className="font-mono">{shortAddr(PAYMENT_PROCESSOR_ADDRESS)}</dd></div>
+          <div className="flex justify-between"><dt>Contract</dt><dd className="font-mono">{shortAddr(PP!)}</dd></div>
         </dl>
 
         {isPaid ? (
@@ -159,8 +175,8 @@ export default function PayPage() {
             <div className="font-semibold">✓ Invoice paid</div>
             {(inv.payment?.txHash || payHash) && (
               <div className="mt-1 break-all font-mono text-xs">
-                {txUrl(inv.payment?.txHash || payHash!) ? (
-                  <a className="underline" target="_blank" href={txUrl(inv.payment?.txHash || payHash!)}>{inv.payment?.txHash || payHash}</a>
+                {txUrl(inv.chainId, inv.payment?.txHash || payHash!) ? (
+                  <a className="underline" target="_blank" href={txUrl(inv.chainId, inv.payment?.txHash || payHash!)}>{inv.payment?.txHash || payHash}</a>
                 ) : (inv.payment?.txHash || payHash)}
               </div>
             )}
@@ -173,9 +189,12 @@ export default function PayPage() {
         ) : inv.status !== "PENDING" ? (
           <div className="rounded-lg bg-field p-4 text-sm">This invoice is {inv.status.toLowerCase()} and cannot be paid.</div>
         ) : !isConnected ? (
-          <div className="flex justify-center"><ConnectButton /></div>
+          <div className="flex justify-center"><ConnectButton chainId={invChainId} /></div>
         ) : wrongChain ? (
-          <div className="flex justify-center"><ConnectButton /></div>
+          <div className="space-y-2 text-center">
+            <p className="text-sm text-ink-soft">This invoice is paid on {cfg!.name}.</p>
+            <div className="flex justify-center"><ConnectButton chainId={invChainId} /></div>
+          </div>
         ) : (
           <div className="space-y-4">
             <PayStepper step={step} needsApprove={needsApprove} />

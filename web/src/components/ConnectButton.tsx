@@ -2,13 +2,19 @@
 
 import { useSyncExternalStore } from "react";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
-import { chain } from "@/lib/chain";
+import { DEFAULT_CHAIN_ID, getChain } from "@/lib/chains";
 import { shortAddr } from "@/lib/usdc";
 
-export type ConnectButtonProps = { className?: string; label?: string };
+export type ConnectButtonProps = {
+  className?: string;
+  label?: string;
+  /** Network the caller needs the wallet on (an invoice's chain). Defaults to the app default. */
+  chainId?: number;
+};
 
 /** Injected-wallet connect button. Shows a short address plus disconnect when connected. */
-export default function ConnectButton({ className = "", label = "Connect wallet" }: ConnectButtonProps) {
+export default function ConnectButton({ className = "", label = "Connect wallet", chainId: wantId = DEFAULT_CHAIN_ID }: ConnectButtonProps) {
+  const want = getChain(wantId) ?? getChain(DEFAULT_CHAIN_ID)!;
   // false during SSR/hydration, true once mounted in the browser (avoids wallet-state mismatches)
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -32,10 +38,10 @@ export default function ConnectButton({ className = "", label = "Connect wallet"
   }
 
   if (isConnected && address) {
-    if (chainId !== chain.id) {
+    if (chainId !== want.id) {
       return (
-        <button type="button" className="btn-secondary" onClick={() => switchChain({ chainId: chain.id })}>
-          Switch to {chain.name}
+        <button type="button" className="btn-secondary" onClick={() => switchChain({ chainId: want.id })}>
+          Switch to {want.name}
         </button>
       );
     }

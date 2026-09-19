@@ -20,10 +20,13 @@ From **New invoice**, fill in:
 
 | Field | Required | Notes |
 | --- | --- | --- |
+| Network | yes | Arc or Robinhood Chain. The buyer pays USDC on this chain; it cannot be changed after the link is created. Preselects the network your wallet is on. |
 | Description | yes | Up to 500 characters. Shown on the payment link. |
 | Amount (USDC) | yes | Positive number, up to 6 decimals. Stored in smallest units (`250.00` becomes `250000000`). |
 | Customer name | no | For you only; never sent to chain. |
 | Due date | no | Informational. There is no automatic expiry yet. |
+
+The onchain key below does not include the network. The same terms hash to the same key on Arc and on Robinhood Chain, so the invoice's stored `chainId` is what pins the payment: a matching event seen on the other chain is rejected.
 
 On save, the backend creates the invoice record and derives two values:
 

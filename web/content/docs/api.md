@@ -23,7 +23,7 @@ Amounts are always in **smallest USDC units** (6 decimals), except when creating
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/api/invoices?merchantId=&status=` | List, newest first. Both filters optional. |
+| `GET` | `/api/invoices?merchantId=&status=&chainId=` | List, newest first. All filters optional. |
 | `POST` | `/api/invoices` | Create; `201` with `paymentLink` |
 | `GET` | `/api/invoices/:id` | Detail, including `merchant` and `payment` (if any) |
 | `DELETE` | `/api/invoices/:id` | Set `CANCELLED` if not PAID |
@@ -33,6 +33,7 @@ Body for `POST /api/invoices`:
 ```json
 {
   "merchantId": "clx...",
+  "chainId": 4663,
   "description": "Logo design, milestone 2",
   "customerName": "Alex",
   "amount": "85.00",
@@ -40,7 +41,7 @@ Body for `POST /api/invoices`:
 }
 ```
 
-Validation (zod): `description` 1 to 500 characters, `amount` matching `^\d+(\.\d{1,6})?$` and `> 0`, `dueAt` optional ISO datetime. Unknown merchant: `404`.
+Validation (zod): `chainId` optional, must be one of the networks in `GET /api/chains` (defaults to the deployment's default chain), `description` 1 to 500 characters, `amount` matching `^\d+(\.\d{1,6})?$` and `> 0`, `dueAt` optional ISO datetime. Unknown merchant: `404`.
 
 The invoice object:
 
@@ -48,6 +49,7 @@ The invoice object:
 {
   "id": "clx...",
   "onchainId": "0x9f2a...",
+  "chainId": 4663,
   "merchantId": "clx...",
   "customerName": "Alex",
   "description": "Logo design, milestone 2",
@@ -75,16 +77,40 @@ The invoice object:
 | `202` | Undecidable yet: tx not found yet or confirmations short. Retry. |
 | `400` | Tx reverted, no event for this invoice, or terms mismatch. Body has `reason`. Do not retry. |
 
+## Chains
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/api/chains` | Networks this deployment accepts, with `paymentProcessor` and `usdc` per chain |
+| `POST` | `/api/rpc/:chainId` | Same-origin JSON-RPC relay used by the browser and the wallet (allow-listed methods, rate limited) |
+
+```json
+{
+  "default": 4663,
+  "chains": [
+    { "chainId": 4663, "name": "Robinhood Chain", "testnet": false, "explorerUrl": "https://robinhoodchain.blockscout.com",
+      "paymentProcessor": "0x...", "usdc": "0x...", "rpc": "/api/rpc/4663" },
+    { "chainId": 5042, "name": "Arc Testnet", "testnet": true, "explorerUrl": null,
+      "paymentProcessor": "0x...", "usdc": "0x...", "rpc": "/api/rpc/5042" }
+  ]
+}
+```
+
+To pay an invoice without the UI, call `pay(salt, merchant, amount)` on the `paymentProcessor` of the invoice's `chainId`, where `salt = keccak256(invoice.id)`.
+
 ## Indexer
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `POST` | `/api/indexer` | Scan `PaymentReceived` from the last block to the head |
+| `POST` | `/api/indexer?chainId=` | Scan `PaymentReceived` from the last block to the head on every enabled chain, or on one |
 
-Requires an `x-indexer-secret` header equal to `INDEXER_SECRET`. Without it, `401`. Response:
+Requires an `x-indexer-secret` header equal to `INDEXER_SECRET`. Without it, `401`. Each chain keeps its own cursor; a chain whose RPC fails is reported in place without stopping the others (`207`). Response:
 
 ```json
-{ "scanned": 1843, "applied": 2, "from": "18204311", "to": "18206153" }
+{ "ok": true, "chains": [
+  { "chainId": 4663, "scanned": 1843, "applied": 2, "from": "18204311", "to": "18206153" },
+  { "chainId": 5042, "scanned": 120, "applied": 0, "from": "9911", "to": "10030" }
+] }
 ```
 
 Safe to call as often as you like; already-applied events are skipped.
@@ -93,7 +119,7 @@ Safe to call as often as you like; already-applied events are skipped.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/api/invoices/export?merchantId=` | CSV of the merchant's invoices, with `txHash` and `paidAt` for PAID ones |
+| `GET` | `/api/invoices/export?merchantId=` | CSV of the merchant's invoices, with `network`, `chain_id`, `txHash`, `tx_url` and `paidAt` for PAID ones |
 | `GET` | `/api/stats?merchantId=` | `{ total, paid, pending, totalReceived, totalOutstanding }` |
 
 `totalReceived` is summed from `Payment` records (the actual amounts received), `totalOutstanding` from `PENDING` invoices. Both are smallest-unit strings.

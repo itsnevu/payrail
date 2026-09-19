@@ -201,7 +201,7 @@ function Trust() {
           </h2>
           <p className="lp-body lp-muted max-w-sm">
             Screenshots can be faked. Bank statements can be misread. An onchain event can be neither, and it is the
-            only source of truth Payrail trusts.
+            only source of truth Payrail trusts, on Arc and on Robinhood Chain alike.
           </p>
         </div>
         <TrustCards />
@@ -213,7 +213,7 @@ function Trust() {
 const STATS = [
   { figure: "1", unit: "transaction", tag: "pay()", note: "From the buyer: approve USDC, then pay. Nothing else to do." },
   { figure: "0", unit: "USDC held", tag: "custody", note: "Not by the contract, not by us. Funds land in your wallet in the same block." },
-  { figure: "2", unit: "ways to verify", tag: "txHash · indexer", note: "The receipt from the browser, and an indexer watching the chain as the safety net." },
+  { figure: "2", unit: "chains", tag: "Arc · Robinhood", note: "Pick the network per invoice. The receipt from the browser and an indexer on each chain do the rest." },
 ];
 
 function Closing() {

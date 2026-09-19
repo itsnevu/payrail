@@ -7,7 +7,8 @@ Hardhat + Solidity 0.8.24 (pinned) + OpenZeppelin 5.
 | `contracts/PaymentProcessor.sol` | v2. `pay(salt, merchant, amount)` derives `invoiceId = keccak256(abi.encode(salt, merchant, amount))`, forwards USDC to the merchant, emits `PaymentReceived`. Holds no funds, has no owner. |
 | `contracts/MockUSDC.sol` | 6-decimal ERC-20 with open `mint()`. Local testing only. |
 | `contracts/mocks/FalseReturnToken.sol` | Token whose `transferFrom` returns `false`. Test only, proves the SafeERC20 path. |
-| `scripts/deploy.ts` | Deploys (MockUSDC on local networks), writes `web/src/lib/deployment.json`. Refuses non-local deploys without a valid `USDC_ADDRESS`. |
+| `scripts/deploy.ts` | Deploys (MockUSDC on local networks), writes `deployments/<chainId>.json` and merges into `web/src/lib/deployments.json`. Refuses non-local deploys without a valid `USDC_ADDRESS_<NETWORK>` that has code on the target chain. |
+| `deployments/` | One committed record per chain id. |
 | `test/PaymentProcessor.test.ts` | 11 tests: constructor, key derivation, pay, reverts, SafeERC20, griefing regression. |
 
 ```bash
@@ -17,6 +18,11 @@ npm run node            # local chain on :8545
 npm run deploy:local    # deploy + write addresses into ../web
 npm run deploy:arc      # Arc Testnet (needs .env)
 npm run deploy:arc-mainnet   # refuses to run without verified .env values
+npm run go:robinhood              # ONE SHOT: Robinhood Chain 4663. Needs only DEPLOYER_PRIVATE_KEY in .env
+npm run go:robinhood-testnet      # same for chain 46630; add `-- --dry-run` to check without deploying
+npm run deploy:robinhood          # raw hardhat deploy, chain 4663 (needs USDC_ADDRESS_ROBINHOODMAINNET + working RPC)
+npm run deploy:robinhood-testnet  # Robinhood Chain Testnet, chain 46630
+npx hardhat verify --network robinhoodMainnet <processor> <usdc>   # Blockscout, no real key needed
 ```
 
 Live end-to-end check (hardhat node + `npm run dev` in `web/`): `cd ../web && npm run test:e2e`. It creates an invoice through the API, performs the v1 griefing attack on chain, pays with the real terms, and asserts the backend flips the invoice to PAID exactly once.
@@ -50,7 +56,8 @@ Scope: `PaymentProcessor.sol` and its integration points (`web/src/lib/usdc.ts`,
 ### Remaining before mainnet (operational, not contract)
 
 - **Independent audit.** Two internal review passes and an attack replay are not a third-party audit. Budget one before real money.
-- **Verify the target chain.** All Arc chain IDs, RPC URLs and the USDC address in this repo are placeholders. Confirm them from official Arc and Circle sources, and confirm the ERC-20 USDC on that chain has 6 decimals (the app assumes it does).
+- **Verify the target chain.** All Arc chain IDs, RPC URLs and the USDC address in this repo are placeholders. Confirm them from official Arc and Circle sources, and confirm the ERC-20 USDC on that chain has 6 decimals (the app assumes it does). Robinhood Chain: PaymentProcessor `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D` deployed 20 September 2026 against USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` (6 decimals), see `deployments/4663.json`. Blockscout source verification is still pending (the explorer answered with a Cloudflare challenge); re-run `npx hardhat verify --network robinhoodMainnet 0xD591A0d397179dE0692d50f43AC450C6cDF9C66D 0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`.
+- **One deployment per chain.** `usdc` is immutable, so each network gets its own PaymentProcessor; the web app keys everything by `chainId`.
 - **Verify source on the explorer** after deploy (`EXPLORER_API_KEY` + `npx hardhat verify <address> <usdc>`).
 - **Commit the deployment record.** `deploy.ts` overwrites `web/src/lib/deployment.json`; keep a per-chain copy under version control.
 - **App hardening.** Add SIWE so only the merchant can create their invoices; set `CONFIRMATIONS` to 2 or 3; generate a real `INDEXER_SECRET`; move to PostgreSQL; use a second RPC provider for the indexer.

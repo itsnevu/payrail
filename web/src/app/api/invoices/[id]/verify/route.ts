@@ -21,7 +21,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const inv = await prisma.invoice.findUnique({ where: { id: params.id } });
   if (!inv) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const result = await verifyTx(body.data.txHash as `0x${string}`, inv.onchainId);
+  // Verified on the invoice's own chain: a tx hash from another network can never match.
+  const result = await verifyTx(inv.chainId, body.data.txHash as `0x${string}`, inv.onchainId);
   const fresh = await prisma.invoice.findUnique({
     where: { id: params.id },
     include: { merchant: true, payment: true },

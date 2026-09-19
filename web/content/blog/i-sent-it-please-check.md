@@ -38,6 +38,8 @@ The money still goes straight to you. That matters and is often skipped: most ma
 
 The right contract does not need to hold anything. `transferFrom(buyer, merchant)` is one call; the contract just stands beside it, taking notes. Its balance is always zero. Nothing can be stolen from something that is empty.
 
+Nor does it need to live on one chain. Payrail runs on Arc and on Robinhood Chain, the same tiny contract on each. When you create an invoice you pick the network, and the link carries that choice: the buyer's wallet is switched to it, and the payment is looked for there and nowhere else. Your client on Arc and your client on Robinhood Chain both get a link that just works, and you get one dashboard.
+
 ## So
 
 Those five words, "I sent it, please check", are not a complaint about payment. They are an admission that the payment system does not know what is being paid for. Once the transaction carries its own bill ID, the message never needs to be sent again. The client pays; the status changes; you see it when you open the dashboard, or you never see it at all because there is nothing left to check.

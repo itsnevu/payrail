@@ -55,7 +55,7 @@ The backend then confirms that the key in the event equals the `onchainId` it st
 
 ## MockUSDC
 
-For local development, `MockUSDC.sol` is a 6-decimal ERC-20 with an open `mint()`. The deploy script mints 10,000 USDC to the first three hardhat accounts. On test networks and production the contract points at the official USDC address through `USDC_ADDRESS`.
+For local development, `MockUSDC.sol` is a 6-decimal ERC-20 with an open `mint()`. The deploy script mints 10,000 USDC to the first three hardhat accounts. On real networks the contract points at that chain's official USDC address through `USDC_ADDRESS_<NETWORK>`. Because `usdc` is immutable, **each chain gets its own PaymentProcessor**: one deployment on Arc, one on Robinhood Chain. The web app keys every address by chain id in `web/src/lib/deployments.json`.
 
 ## Running locally
 
@@ -84,11 +84,33 @@ Optional, a local indexer that keeps running:
 node scripts/indexer-loop.mjs
 ```
 
+## Networks
+
+Payrail is dual chain. The registry is `web/src/lib/chains.ts`; a chain is offered to merchants as soon as its PaymentProcessor address is known.
+
+| Network | Chain id | Gas | Explorer | Deployment |
+| --- | --- | --- | --- | --- |
+| Arc Testnet | 5042 (placeholder, verify) | USDC | none yet | not yet |
+| Robinhood Chain | 4663 | ETH | robinhoodchain.blockscout.com | live: `PaymentProcessor` at `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D`, token USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` |
+| Robinhood Chain Testnet | 46630 | ETH | explorer.testnet.chain.robinhood.com | not yet |
+| Hardhat (local) | 31337 | ETH | none | per developer |
+
+Robinhood Chain is an Arbitrum Orbit L2, so the buyer needs a little ETH there for gas. The dollar token on Robinhood Chain is **USDG** (Global Dollar, 6 decimals); the app still labels amounts "USDC" until a USDC contract is available there. Its public RPC is filtered by some ISPs; the browser and the wallet therefore talk to the same-origin relay `/api/rpc/4663`, which the server forwards.
+
+## Deploying to Robinhood Chain
+
+1. `contracts/.env`: `DEPLOYER_PRIVATE_KEY` (holding a little ETH on Robinhood Chain) and `USDC_ADDRESS_ROBINHOODMAINNET`, the bridged USDC contract taken from the official bridge or Blockscout. Confirm it has 6 decimals. The script refuses to run without it and checks the address has code.
+2. `npm run deploy:robinhood` (or `deploy:robinhood-testnet` for chain 46630). It writes `contracts/deployments/4663.json` and merges the entry into `web/src/lib/deployments.json`.
+3. `npx hardhat verify --network robinhoodMainnet <processor> <usdc>` (Blockscout, no real key needed).
+4. `web/.env`: `CONFIRMATIONS_4663=2`. Restart the app; the chain appears in the invoice form and in `GET /api/chains`.
+
 ## Deploying to Arc Testnet
 
-1. `contracts/.env`: set `DEPLOYER_PRIVATE_KEY`, `ARC_RPC_URL`, `ARC_CHAIN_ID`, `USDC_ADDRESS`. The chain ID, RPC and USDC values in the repo are **placeholders**; verify them against the official Arc and Circle documentation.
-2. `npm run deploy:arc`
-3. `web/.env`: `NEXT_PUBLIC_CHAIN_ID`, `NEXT_PUBLIC_RPC_URL`, `NEXT_PUBLIC_EXPLORER_URL`, `CONFIRMATIONS=2` or `3`.
-4. Production: switch the Prisma datasource to `postgresql`, run `/api/indexer` from cron with the `x-indexer-secret` header.
+1. `contracts/.env`: set `DEPLOYER_PRIVATE_KEY`, `ARC_RPC_URL`, `ARC_CHAIN_ID`, `USDC_ADDRESS_ARCTESTNET`. The chain ID, RPC and USDC values in the repo are **placeholders**; verify them against the official Arc and Circle documentation.
+2. `npm run deploy:arc`, then set `NEXT_PUBLIC_EXPLORER_URL_5042` in `web/.env` once an explorer is known.
+
+## Production
+
+Switch the Prisma datasource to `postgresql`, run `POST /api/indexer` from cron with the `x-indexer-secret` header (one call scans every enabled chain, each with its own cursor), and set a real `INDEXER_SECRET`.
 
 Next: [API](/docs/api).

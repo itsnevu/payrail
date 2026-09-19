@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { formatUsdc, shortAddr } from "@/lib/usdc";
-import { chain } from "@/lib/chain";
+import { CHAINS, DEFAULT_CHAIN_ID, getChain } from "@/lib/chains";
 import { LINKS } from "@/lib/links";
 
 type Merchant = { id: string; name: string; walletAddress: string };
-type Form = { merchantId: string; description: string; customerName: string; amount: string; dueAt: string };
+type Form = { merchantId: string; chainId: number; description: string; customerName: string; amount: string; dueAt: string };
 type FieldErrors = Partial<Record<keyof Form, string>>;
 
 const QUICK_AMOUNTS = ["50", "100", "250", "500", "1000"];
@@ -27,9 +27,16 @@ function NewInvoice() {
   const router = useRouter();
   const search = useSearchParams();
   const duplicateFrom = search.get("from");
-  const { address } = useAccount();
+  const { address, chainId: walletChainId } = useAccount();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
-  const [form, setForm] = useState<Form>({ merchantId: "", description: "", customerName: "", amount: "", dueAt: "" });
+  const [form, setForm] = useState<Form>({ merchantId: "", chainId: DEFAULT_CHAIN_ID, description: "", customerName: "", amount: "", dueAt: "" });
+  const [chainTouched, setChainTouched] = useState(false);
+
+  // Follow the connected wallet's network until the merchant picks one explicitly.
+  useEffect(() => {
+    if (chainTouched || !walletChainId || !getChain(walletChainId)) return;
+    setForm((f) => (f.chainId === walletChainId ? f : { ...f, chainId: walletChainId }));
+  }, [walletChainId, chainTouched]);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -54,6 +61,7 @@ function NewInvoice() {
         setForm((f) => ({
           ...f,
           merchantId: inv.merchant?.id ?? f.merchantId,
+          chainId: getChain(inv.chainId) ? inv.chainId : f.chainId,
           description: inv.description ?? "",
           customerName: inv.customerName ?? "",
           amount: formatUsdc(inv.amount).replace(/,/g, ""),
@@ -63,6 +71,7 @@ function NewInvoice() {
   }, [duplicateFrom]);
 
   const merchant = merchants.find((m) => m.id === form.merchantId);
+  const chain = getChain(form.chainId) ?? CHAINS[0];
   const amountOk = /^\d+(\.\d{1,6})?$/.test(form.amount) && Number(form.amount) > 0;
   const previewAmount = amountOk
     ? Number(form.amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 })
@@ -81,6 +90,7 @@ function NewInvoice() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         merchantId: form.merchantId,
+        chainId: form.chainId,
         description: form.description.trim(),
         customerName: form.customerName.trim() || undefined,
         amount: form.amount,
@@ -134,6 +144,26 @@ function NewInvoice() {
           ) : (
             <input type="hidden" value={form.merchantId} />
           )}
+
+          {/* Network: hidden when this deployment offers only one. */}
+          {CHAINS.length > 1 ? (
+            <div>
+              <label className="label">Network</label>
+              <div className="flex flex-wrap gap-1.5">
+                {CHAINS.map((c) => (
+                  <button key={c.id} type="button"
+                    onClick={() => { setChainTouched(true); set("chainId", c.id); }}
+                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                      form.chainId === c.id ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink hover:text-ink"
+                    }`}>
+                    {c.name}{c.testnet ? " · test" : ""}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1 text-xs text-ink-faint">The buyer pays USDC on this network. It cannot be changed after the link is created.</p>
+              <FieldError msg={errors.chainId} />
+            </div>
+          ) : null}
 
           <div>
             <label className="label">Description</label>

@@ -8,7 +8,11 @@
     "node": "hardhat node",
     "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
     "deploy:arc": "hardhat run scripts/deploy.ts --network arcTestnet",
-    "deploy:arc-mainnet": "hardhat run scripts/deploy.ts --network arcMainnet"
+    "deploy:arc-mainnet": "hardhat run scripts/deploy.ts --network arcMainnet",
+    "deploy:robinhood": "hardhat run scripts/deploy.ts --network robinhoodMainnet",
+    "deploy:robinhood-testnet": "hardhat run scripts/deploy.ts --network robinhoodTestnet",
+    "go:robinhood": "node scripts/robinhood.mjs",
+    "go:robinhood-testnet": "node scripts/robinhood.mjs --testnet"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

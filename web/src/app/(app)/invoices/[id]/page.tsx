@@ -8,10 +8,10 @@ import ShareLinkButton from "@/components/ShareLinkButton";
 import CopyText from "@/components/CopyText";
 import Link from "next/link";
 import { formatUsdc } from "@/lib/usdc";
-import { txUrl } from "@/lib/chain";
+import { chainName, txUrl } from "@/lib/chains";
 
 type Invoice = {
-  id: string; onchainId: string; description: string; customerName?: string; amount: string;
+  id: string; onchainId: string; chainId: number; description: string; customerName?: string; amount: string;
   status: string; createdAt: string; dueAt?: string | null;
   merchant: { name: string; walletAddress: string };
   payment?: { txHash: string; payer: string; amount: string; paidAt: string; blockNumber: string } | null;
@@ -62,6 +62,7 @@ export default function InvoiceDetail() {
 
         <dl className="grid grid-cols-3 gap-y-2 text-sm">
           <dt className="text-ink-soft">Merchant</dt><dd className="col-span-2">{inv.merchant.name}</dd>
+          <dt className="text-ink-soft">Network</dt><dd className="col-span-2">{chainName(inv.chainId)}</dd>
           <dt className="text-ink-soft">Merchant wallet</dt><dd className="col-span-2"><CopyText value={inv.merchant.walletAddress} className="font-mono break-all" /></dd>
           <dt className="text-ink-soft">Payment key (onchain)</dt><dd className="col-span-2"><CopyText value={inv.onchainId} className="font-mono break-all text-xs" /></dd>
           <dt className="text-ink-soft">Created</dt><dd className="col-span-2">{new Date(inv.createdAt).toLocaleString("en-GB")}</dd>
@@ -112,8 +113,8 @@ export default function InvoiceDetail() {
             <div>Amount: {formatUsdc(inv.payment.amount)} USDC · Block #{inv.payment.blockNumber}</div>
             <div className="break-all">
               Tx:{" "}
-              {txUrl(inv.payment.txHash) ? (
-                <a className="text-ink underline decoration-green underline-offset-4 hover:underline font-mono" href={txUrl(inv.payment.txHash)} target="_blank">{inv.payment.txHash}</a>
+              {txUrl(inv.chainId, inv.payment.txHash) ? (
+                <a className="text-ink underline decoration-green underline-offset-4 hover:underline font-mono" href={txUrl(inv.chainId, inv.payment.txHash)} target="_blank">{inv.payment.txHash}</a>
               ) : (
                 <span className="font-mono">{inv.payment.txHash}</span>
               )}

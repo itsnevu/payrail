@@ -10,7 +10,9 @@ import { hardhat } from "viem/chains";
 import { readFileSync } from "node:fs";
 
 const APP = process.env.APP_URL || "http://localhost:3000";
-const dep = JSON.parse(readFileSync(new URL("../src/lib/deployment.json", import.meta.url), "utf8"));
+const CHAIN_ID = 31337;
+const dep = JSON.parse(readFileSync(new URL("../src/lib/deployments.json", import.meta.url), "utf8"))[String(CHAIN_ID)];
+if (!dep) { console.error(`no deployment for chain ${CHAIN_ID} in src/lib/deployments.json; run contracts: npm run deploy:local`); process.exit(1); }
 
 // hardhat default accounts #1 (merchant), #2 (buyer), #0 (attacker; funded by the deploy script)
 const MERCHANT = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
@@ -40,7 +42,8 @@ const assert = (cond, msg) => { if (!cond) { console.error("FAIL:", msg); proces
 
 // 1. merchant + invoice
 const m = await post("/api/merchants", { name: "E2E Merchant", walletAddress: MERCHANT });
-const inv = await post("/api/invoices", { merchantId: m.id, description: "e2e v2", amount: "12.50" });
+const inv = await post("/api/invoices", { merchantId: m.id, chainId: CHAIN_ID, description: "e2e v2", amount: "12.50" });
+assert(inv.chainId === CHAIN_ID, "invoice is pinned to the requested chain");
 const amount = BigInt(inv.amount);
 const salt = keccak256(toBytes(inv.id));
 const expectedKey = keccak256(encodeAbiParameters([{ type: "bytes32" }, { type: "address" }, { type: "uint256" }], [salt, MERCHANT, amount]));

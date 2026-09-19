@@ -13,7 +13,7 @@ export default function Page() {
           <p>USDC moves directly from the buyer&apos;s wallet to the merchant&apos;s wallet through the PaymentProcessor contract. The contract never holds a balance, and Payrail never has access to anyone&apos;s funds. Blockchain transactions are final; there is no cancellation or refund mechanism on our side.</p>
           <p>The PAID status is granted only after the payment transaction has been verified from the onchain receipt and event, with the configured number of confirmations. Until then an invoice is PENDING even if the buyer says they have paid.</p>
           <p>Merchants are responsible for the correctness of the wallet address they register and for the content of the invoices they create. An invoice with the wrong address will be paid to the wrong address, and cannot be reversed.</p>
-          <p>This software is in beta and runs on a test network. There has been no independent security audit. Features, data schema and parameters may change.</p>
+          <p>This software is in beta. It runs on Arc and on Robinhood Chain, and each invoice is pinned to one of them; some of these networks are test networks. There has been no independent security audit. Features, data schema and parameters may change.</p>
           <p>You are responsible for your own tax position and for the laws that apply where you live.</p>
           <p>
             Questions:{" "}

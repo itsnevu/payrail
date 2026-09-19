@@ -28,7 +28,7 @@ This page spells out what the other pages only mention in passing. If you are go
 
 **Cancelled but paid anyway.** `DELETE` only changes the database. The contract does not know. A payer who already holds the `pay()` arguments can still send them; USDC reaches the merchant, the indexer applies the event, and since `applyPaymentLog` does not check for `CANCELLED`, the invoice becomes PAID. The merchant receives money they may have to refund by hand.
 
-**Reorgs.** With `CONFIRMATIONS=1`, the block holding the payment can be reorged after we marked PAID. It does not happen on hardhat; on a real network use `2` or `3`.
+**Reorgs.** With `CONFIRMATIONS=1`, the block holding the payment can be reorged after we marked PAID. It does not happen on hardhat; on a real network use `2` or `3` (`CONFIRMATIONS_<chainId>` sets it per chain).
 
 **Anyone can create invoices for any merchant.** There is no authentication on the API. An attacker can flood your dashboard with fake invoices (no financial harm; an unpaid fake invoice is just a row), or create an invoice in your name and send the link to your client. If paid, it still sends USDC to **your wallet**, because the merchant address comes from the database, not from whoever created the invoice. Annoying, not theft.
 
@@ -41,7 +41,7 @@ This page spells out what the other pages only mention in passing. If you are go
 - **Partial payments or instalments.** One invoice, one `pay()`, full amount or more.
 - **Webhooks and notifications.** Today you see PAID by opening the dashboard.
 - **Escrow.** Funds go straight to the merchant. If you need a hold until goods arrive, that is a different product.
-- **Multi-token and multi-chain.** One deployment, one token, one chain.
+- **Multi-token.** USDC only. Multi-chain exists (Arc and Robinhood Chain), but one invoice is one chain: a payment on the other network does not count and has to be refunded by hand.
 - **An independent audit.**
 
 ## What will not change

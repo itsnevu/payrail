@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { formatUsdc } from "@/lib/usdc";
+import { chainName, txUrl } from "@/lib/chains";
 
 /** GET /api/invoices/export?merchantId=... -> CSV file */
 export async function GET(req: Request) {
@@ -13,14 +14,15 @@ export async function GET(req: Request) {
 
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const header = [
-    "invoice_id", "created_at", "merchant", "merchant_wallet", "customer", "description",
-    "amount_usdc", "status", "paid_at", "payer", "tx_hash", "block_number",
+    "invoice_id", "created_at", "network", "chain_id", "merchant", "merchant_wallet", "customer", "description",
+    "amount_usdc", "status", "paid_at", "payer", "tx_hash", "tx_url", "block_number",
   ];
   const lines = rows.map((r) =>
     [
-      r.id, r.createdAt.toISOString(), r.merchant.name, r.merchant.walletAddress,
+      r.id, r.createdAt.toISOString(), chainName(r.chainId), r.chainId, r.merchant.name, r.merchant.walletAddress,
       r.customerName, r.description, formatUsdc(r.amount), r.status,
       r.payment?.paidAt.toISOString(), r.payment?.payer, r.payment?.txHash,
+      r.payment ? txUrl(r.chainId, r.payment.txHash) : "",
       r.payment?.blockNumber?.toString(),
     ].map(esc).join(",")
   );

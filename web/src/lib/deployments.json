@@ -1,0 +1,16 @@
+{
+  "4663": {
+    "network": "robinhoodMainnet",
+    "chainId": 4663,
+    "usdc": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+    "paymentProcessor": "0xD591A0d397179dE0692d50f43AC450C6cDF9C66D",
+    "deployedAt": "2026-09-19T18:58:30.729Z"
+  },
+  "31337": {
+    "network": "localhost",
+    "chainId": 31337,
+    "usdc": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "paymentProcessor": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+    "deployedAt": "2026-09-19T18:15:34.889Z"
+  }
+}

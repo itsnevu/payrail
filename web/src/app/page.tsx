@@ -5,7 +5,10 @@ import ConnectButton from "@/components/ConnectButton";
 import { PactMark } from "@/components/Logo";
 import StepArt from "@/components/StepArt";
 import { ArrowIcon, TelegramIcon, XIcon } from "@/components/Icons";
-import { PayPhone, PhoneDefs } from "@/components/Phone";
+import { PhoneDefs } from "@/components/Phone";
+import MatchGame from "@/components/MatchGame";
+import PayDemo from "@/components/PayDemo";
+import TrustCards from "@/components/TrustCards";
 
 function Header() {
   return (
@@ -53,19 +56,6 @@ const HERO_EVENTS: { id: string; who: string; amount: string; state: "paid" | "w
 function Hero() {
   return (
     <section className="lp-hero" data-hero="true">
-      <div className="lp-hero-art" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero/p-2200.jpg"
-          srcSet="/hero/p-1200.jpg 1200w, /hero/p-2200.jpg 2200w"
-          sizes="100vw"
-          alt=""
-          fetchPriority="high"
-          decoding="async"
-          draggable={false}
-        />
-      </div>
-
       <div className="lp-hero-copy">
         <p className="lp-eyebrow">USDC invoices · Non-custodial · Verified onchain</p>
         <h1 className="lp-hero-title" style={{ "--reveal-delay": "60ms" } as React.CSSProperties}>
@@ -89,33 +79,33 @@ function Hero() {
         </p>
       </div>
 
-      <ul className="lp-hero-strip" style={{ "--reveal-delay": "320ms" } as React.CSSProperties} aria-label="Example invoice activity">
-        {HERO_EVENTS.map((e) => (
-          <li key={e.id}>
-            <span className={`lp-dot${e.state === "waiting" ? " lp-dot-wait" : ""}`} />
-            <span>
-              <b>{e.id}</b> · {e.who} · {e.amount} USDC · {e.meta}
-            </span>
-            <span className="lp-strip-tag">{e.state === "paid" ? "PAID" : "PENDING"}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="lp-hero-art" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero/p-2200.jpg"
+          srcSet="/hero/p-1200.jpg 1200w, /hero/p-2200.jpg 2200w"
+          sizes="100vw"
+          alt=""
+          fetchPriority="high"
+          decoding="async"
+          draggable={false}
+        />
+        <ul className="lp-hero-strip" aria-label="Example invoice activity">
+          {HERO_EVENTS.map((e) => (
+            <li key={e.id}>
+              <span className={`lp-dot${e.state === "waiting" ? " lp-dot-wait" : ""}`} />
+              <span>
+                <b>{e.id}</b> · {e.who} · {e.amount} USDC · {e.meta}
+              </span>
+              <span className="lp-strip-tag">{e.state === "paid" ? "PAID" : "PENDING"}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
     </section>
   );
 }
-
-const OLD_WAY = [
-  "Send the invoice, then wait for a \"sent it, please check\" message.",
-  "Open the wallet, scroll the history, guess which transfer is theirs.",
-  "Match the amount by hand. Hope nobody paid the same number.",
-  "Reply \"received\", update the sheet, forget one, chase it next month.",
-];
-const NEW_WAY = [
-  "One invoice, one payment link, one onchain ID.",
-  "The buyer pays. The contract emits the event with the ID.",
-  "Payrail matches merchant, amount and ID from the event.",
-  "The invoice is marked PAID. History and CSV are already there.",
-];
 
 /** Sits between the hero and the pay walkthrough: the problem, in one breath, before the second phone. */
 function Problem() {
@@ -128,35 +118,12 @@ function Problem() {
           <span className="lp-muted">Knowing which invoice got paid is not.</span>
         </h2>
         <p className="lp-body lp-muted max-w-sm">
-          A USDC transfer carries an amount and a sender, and nothing else. Every freelancer and small shop ends up
-          reconciling by hand. That step is the whole product.
+          A USDC transfer carries an amount and a sender, and nothing else. Try matching one yourself: that step is
+          the whole product.
         </p>
       </div>
-      <div className="lp-col lp-compare">
-        <div className="lp-compare-col lp-compare-old">
-          <span className="lp-compare-tag">Today</span>
-          <ol className="lp-compare-list">
-            {OLD_WAY.map((t, i) => (
-              <li key={t}>
-                <span className="lp-compare-num">{i + 1}</span>
-                <span>{t}</span>
-              </li>
-            ))}
-          </ol>
-          <span className="lp-compare-foot lp-muted">Manual, every single time.</span>
-        </div>
-        <div className="lp-compare-col lp-compare-new">
-          <span className="lp-compare-tag">With Payrail</span>
-          <ol className="lp-compare-list">
-            {NEW_WAY.map((t, i) => (
-              <li key={t}>
-                <span className="lp-compare-num">{i + 1}</span>
-                <span>{t}</span>
-              </li>
-            ))}
-          </ol>
-          <span className="lp-compare-foot">Automatic. Funds never held.</span>
-        </div>
+      <div className="lp-col">
+        <MatchGame />
       </div>
     </section>
   );
@@ -166,26 +133,7 @@ function PayVerify() {
   return (
     <div className="lp-panel-wrap">
       <section className="lp-section lp-panel">
-        <div className="lp-col lp-col-left order-1">
-          <h2 className="lp-head">
-            Send the link.
-            <br />
-            <span className="lp-muted">Receive USDC. Marked paid.</span>
-          </h2>
-        </div>
-        <div className="lp-portal order-2">
-          <PayPhone />
-        </div>
-        <div className="lp-col lp-col-right order-3 flex flex-col items-start gap-6">
-          <p className="lp-body max-w-sm">
-            The buyer opens the link, approves USDC, and calls <code className="font-mono text-[0.9em]">pay()</code>{" "}
-            with the invoice ID. The contract forwards USDC straight to the merchant and emits one event. The backend
-            reads that receipt and event, never a claim from the browser, and marks the invoice <strong>PAID</strong>.
-          </p>
-          <Link href="/docs/payment-flow" className="lp-pill lp-pill-surface">
-            See how it works <ArrowIcon />
-          </Link>
-        </div>
+        <PayDemo />
       </section>
     </div>
   );
@@ -221,7 +169,7 @@ function Steps() {
       <ul className="lp-col lp-grid">
         {STEPS.map((s, i) => (
           <li key={s.name} className="lp-tile">
-            <div className="lp-art lp-art-field lp-art-step">
+            <div className="lp-art lp-art-field lp-art-step lp-tilt">
               <span className="lp-art-num">0{i + 1}</span>
               <span className="lp-art-tag lp-art-tag-mono">{s.tag}</span>
               <StepArt kind={s.kind} />
@@ -239,21 +187,6 @@ function Steps() {
   );
 }
 
-const TRUST = [
-  {
-    figure: "Matched onchain",
-    note: "The backend re-validates merchant and amount from the PaymentReceived event, not from frontend input. Anything that does not match never becomes PAID.",
-  },
-  {
-    figure: "Funds never held",
-    note: "PaymentProcessor forwards USDC straight to the merchant wallet inside the same transaction. The contract never holds anyone's balance.",
-  },
-  {
-    figure: "Once, and only once",
-    note: "A paid invoice is rejected by the contract (InvoiceAlreadyPaid), and txHash is unique in the database. Verification is idempotent; a double payment can never be recorded twice.",
-  },
-];
-
 function Trust() {
   return (
     <div className="lp-on-field">
@@ -269,16 +202,7 @@ function Trust() {
             only source of truth Payrail trusts.
           </p>
         </div>
-        <ul className="lp-col lp-grid">
-          {TRUST.map((t) => (
-            <li key={t.figure} className="lp-tile">
-              <div className="lp-art lp-art-surface lp-art-stat">
-                <span className="lp-figure">{t.figure}</span>
-                <span className="lp-note">{t.note}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <TrustCards />
       </section>
     </div>
   );
@@ -304,7 +228,7 @@ function Closing() {
         <ul className="lp-col lp-grid lp-grid-4">
           {STATS.map((s) => (
             <li key={s.figure} className="lp-tile">
-              <div className="lp-art lp-art-outline lp-stat">
+              <div className="lp-art lp-art-outline lp-stat lp-tilt">
                 <span className="lp-stat-tag">{s.tag}</span>
                 <span className="lp-stat-big">
                   <span className="lp-stat-figure">{s.figure}</span>

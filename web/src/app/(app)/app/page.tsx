@@ -167,8 +167,8 @@ export default function Dashboard() {
           ) : invoices.length === 0 ? (
             <div className="flex flex-col items-center gap-4 px-6 py-14 text-center">
               <div className="flex items-center gap-2">
-                <Chip size={28} color="#e6e6e6" />
-                <Chip size={28} color="#161616" stroke="#f2f2f2" />
+                <Chip size={28} color="#0a0a0a" />
+                <Chip size={28} color="#ffffff" stroke="#0a0a0a" />
                 <Chip size={28} color="#404040" />
               </div>
               <div>
@@ -184,7 +184,7 @@ export default function Dashboard() {
               {invoices.map((i) => {
                 const hi = i.id === latestPaidId;
                 return (
-                  <li key={i.id} className={`border-b border-line last:border-0 ${hi ? "bg-[#202020]" : ""}`}>
+                  <li key={i.id} className={`border-b border-line last:border-0 ${hi ? "bg-field" : ""}`}>
                     <Link href={`/invoices/${i.id}`} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-field">
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-field">
                         <Chip size={24} color={STATUS_COLORS[i.status] ?? "#2c2c2c"} />
@@ -226,7 +226,7 @@ export default function Dashboard() {
                 <li key={i.id} className="border-b border-line last:border-0">
                   <Link href={`/invoices/${i.id}`} className="flex items-center gap-3.5 px-5 py-3.5 transition-colors hover:bg-field">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-ink">
-                      <Chip size={20} color="#0a0a0a" />
+                      <Chip size={20} color="#ffffff" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[15px]">{invNo(i.id)} verified</span>

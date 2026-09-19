@@ -25,7 +25,7 @@ export default function PayStepper({ step, needsApprove }: { step: Step; needsAp
         const done = now > idx || step === "done";
         const active = now === idx && step !== "done";
         return (
-          <li key={r.key} className={`flex items-center gap-3 px-3.5 py-2.5 ${active ? "bg-[#202020]" : ""}`}>
+          <li key={r.key} className={`flex items-center gap-3 px-3.5 py-2.5 ${active ? "bg-field" : ""}`}>
             <span
               className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] ${
                 done ? "bg-ink text-bg" : active ? "border border-ink text-ink" : "border border-line text-ink-faint"

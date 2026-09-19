@@ -17,7 +17,6 @@ import { useEffect } from "react";
  */
 const REVEAL_SELECTOR = [
   ".lp-hero-copy > *",
-  ".lp-hero-strip",
   ".lp-section > .lp-col",
   ".lp-section > .lp-portal",
   ".lp-tile",
@@ -71,13 +70,29 @@ export default function Effects() {
     /* ---- spotlight ---- */
     const fine = window.matchMedia("(pointer: fine)").matches;
     const onMove = (ev: PointerEvent) => {
-      const el = (ev.target as HTMLElement | null)?.closest<HTMLElement>(".surface-interactive, .card");
+      const el = (ev.target as HTMLElement | null)?.closest<HTMLElement>(".surface-interactive, .card, .lp-tilt");
       if (!el) return;
       const r = el.getBoundingClientRect();
-      el.style.setProperty("--mx", `${((ev.clientX - r.left) / r.width) * 100}%`);
-      el.style.setProperty("--my", `${((ev.clientY - r.top) / r.height) * 100}%`);
+      const px = (ev.clientX - r.left) / r.width;
+      const py = (ev.clientY - r.top) / r.height;
+      el.style.setProperty("--mx", `${px * 100}%`);
+      el.style.setProperty("--my", `${py * 100}%`);
+      if (el.classList.contains("lp-tilt")) {
+        // lean toward the pointer, at most ~5deg either way
+        el.style.setProperty("--rx", `${((0.5 - py) * 10).toFixed(2)}deg`);
+        el.style.setProperty("--ry", `${((px - 0.5) * 10).toFixed(2)}deg`);
+      }
     };
-    if (fine) document.addEventListener("pointermove", onMove, { passive: true });
+    const onLeave = (ev: PointerEvent) => {
+      const el = (ev.target as HTMLElement | null)?.closest<HTMLElement>(".lp-tilt");
+      if (!el || el.contains(ev.relatedTarget as Node | null)) return;
+      el.style.setProperty("--rx", "0deg");
+      el.style.setProperty("--ry", "0deg");
+    };
+    if (fine) {
+      document.addEventListener("pointermove", onMove, { passive: true });
+      document.addEventListener("pointerout", onLeave, { passive: true });
+    }
 
     /* ---- scroll progress ---- */
     let raf = 0;
@@ -95,7 +110,10 @@ export default function Effects() {
     return () => {
       io.disconnect();
       mo.disconnect();
-      if (fine) document.removeEventListener("pointermove", onMove);
+      if (fine) {
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerout", onLeave);
+      }
       window.removeEventListener("scroll", onScroll);
     };
   }, []);

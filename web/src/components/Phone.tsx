@@ -191,15 +191,27 @@ export function DashboardPhone() {
   );
 }
 
-const STEPS: [string, string, boolean][] = [
-  ["Approve USDC", "allowance 250.00", true],
-  ["pay(invoiceId)", "USDC to merchant", true],
-  ["Verify onchain", "receipt + event match", true],
-  ["Status PAID", "history updated", false],
+export const PAY_STEPS: [string, string][] = [
+  ["Approve USDC", "allowance 250.00"],
+  ["pay(invoiceId)", "USDC to merchant"],
+  ["Verify onchain", "receipt + event match"],
+  ["Status PAID", "history updated"],
 ];
 
-/** Buyer screen: one invoice, one button, visible steps. */
-export function PayPhone() {
+/**
+ * Buyer screen: one invoice, one button, visible steps. `step` is how many of PAY_STEPS are done
+ * (0 = nothing yet, 4 = PAID); <PayDemo/> drives it. Without props it renders the finished state.
+ */
+export function PayPhone({
+  step = PAY_STEPS.length,
+  playing = false,
+  onPay,
+}: {
+  step?: number;
+  playing?: boolean;
+  onPay?: () => void;
+}) {
+  const done = step >= PAY_STEPS.length;
   return (
     <IPhone>
       <AppHead />
@@ -224,40 +236,52 @@ export function PayPhone() {
         <div className="ip-card">
           <p className="ip-card-head">Payment progress</p>
           <div className="ip-comp" style={{ gridTemplateColumns: "1fr" }}>
-            {STEPS.map(([t, sub, done], i) => (
-              <div key={t}>
-                <span className="ip-comp-row">
-                  <span>
-                    {i + 1}. {t}
+            {PAY_STEPS.map(([t, sub], i) => {
+              const isDone = i < step;
+              const isLive = playing && i === step;
+              return (
+                <div key={t}>
+                  <span className="ip-comp-row">
+                    <span>
+                      {i + 1}. {t}
+                    </span>
+                    <span>{isDone || isLive ? sub : "waiting"}</span>
                   </span>
-                  <span>{sub}</span>
-                </span>
-                <span className="ip-bar">
-                  <span style={{ width: done ? "100%" : "35%" }} />
-                </span>
-              </div>
-            ))}
+                  <span className="ip-bar">
+                    <span className={isLive ? "is-live" : undefined} style={{ width: isDone ? "100%" : isLive ? undefined : "0%" }} />
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="ip-card">
-          <div className="ip-row">
-            <span className="ip-tile ip-tile-ink">
-              <CheckIcon className="ip-check" />
-            </span>
-            <span className="ip-row-main">
-              <span className="ip-row-name">Matched to INV-0231</span>
-              <span className="ip-row-sub">tx 0x3a9f…c41e · 2 confirmations</span>
-            </span>
-            <span className="ip-row-amount">
-              <span className="ip-row-count">
-                <span className="ip-mark" />
-                PAID
+        {done ? (
+          <div className="ip-card ip-fade">
+            <div className="ip-row">
+              <span className="ip-tile ip-tile-ink">
+                <CheckIcon className="ip-check" />
               </span>
-              <span className="ip-row-money">Just now</span>
-            </span>
+              <span className="ip-row-main">
+                <span className="ip-row-name">Matched to INV-0231</span>
+                <span className="ip-row-sub">tx 0x3a9f…c41e · 2 confirmations</span>
+              </span>
+              <span className="ip-row-amount">
+                <span className="ip-row-count">
+                  <span className="ip-mark" />
+                  PAID
+                </span>
+                <span className="ip-row-money">Just now</span>
+              </span>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="ip-card ip-card-pad">
+            <button type="button" className="ip-pay" onClick={onPay} disabled={playing || !onPay}>
+              {playing ? "Paying…" : "Pay 250.00 USDC"}
+            </button>
+          </div>
+        )}
       </div>
       <Dock active="payments" />
     </IPhone>

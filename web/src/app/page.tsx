@@ -11,6 +11,8 @@ import PayDemo from "@/components/PayDemo";
 import TrustCards from "@/components/TrustCards";
 import HeroFx from "@/components/HeroFx";
 import MobileNav from "@/components/MobileNav";
+import Faq from "@/components/landing/Faq";
+import ChainStrip from "@/components/landing/ChainStrip";
 
 function Header() {
   return (
@@ -38,6 +40,9 @@ function Header() {
         )}
         <Link href={LINKS.docs} className="lp-small ml-1 hidden px-3 py-2 font-medium sm:block">
           Docs
+        </Link>
+        <Link href={LINKS.faq} className="lp-small hidden px-3 py-2 font-medium sm:block">
+          FAQ
         </Link>
         <Link href={LINKS.app} className="lp-small hidden px-3 py-2 font-medium sm:block">
           Dashboard
@@ -271,7 +276,7 @@ function Closing() {
       <section className="lp-section lp-cards lp-closing">
         <div className="lp-col lp-cards-head">
           <div className="max-w-xl">
-          <p className="lp-kicker">05 · Start</p>
+          <p className="lp-kicker">06 · Start</p>
           <h2 className="lp-head">
             Stop matching statements.
             <br />
@@ -345,6 +350,7 @@ function Closing() {
             <nav className="lp-small flex flex-wrap gap-x-6 gap-y-2 lg:justify-end">
               <Link href={LINKS.app}>Dashboard</Link>
               <Link href={LINKS.docs}>Docs</Link>
+              <Link href={LINKS.faq}>FAQ</Link>
               <Link href={LINKS.whitepaper}>Whitepaper</Link>
               <Link href={LINKS.blog}>Blog</Link>
               <Link href={LINKS.terms}>Terms</Link>
@@ -375,6 +381,8 @@ export default function Home() {
       <PayVerify />
       <Steps />
       <Trust />
+      <Faq />
+      <ChainStrip />
       <Closing />
       <MobileNav />
     </main>

@@ -11,6 +11,7 @@ export const LINKS = {
   docs: "/docs",
   blog: "/blog",
   whitepaper: "/whitepaper",
+  faq: "/faq",
   // App pages:
   app: "/app",
   newInvoice: "/invoices/new",

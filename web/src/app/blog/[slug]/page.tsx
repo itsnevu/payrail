@@ -1,8 +1,12 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProseShell } from "@/components/prose/ProseShell";
+import Kicker from "@/components/blog/Kicker";
+import PostMeta from "@/components/blog/PostMeta";
+import PostNav from "@/components/blog/PostNav";
+import MoreFromPayrail, { MORE_LINKS } from "@/components/blog/MoreFromPayrail";
+import { stripLeadingH1 } from "@/components/prose/stripTitle";
 import { Markdown } from "@/lib/markdown";
-import { blogPost, blogPosts, formatDate } from "@/lib/content";
+import { blogPost, blogPosts } from "@/lib/content";
 
 type Params = { params: { slug: string } };
 
@@ -21,41 +25,42 @@ export default function BlogPostPage({ params }: Params) {
   const post = blogPost(slug);
   if (!post) notFound();
 
-  const others = blogPosts().filter((p) => p.slug !== slug);
+  // `blogPosts()` is newest first, so the entry after this one was published before it.
+  const posts = blogPosts();
+  const index = posts.findIndex((p) => p.slug === slug);
+  const prev = posts[index + 1];
+  const next = posts[index - 1];
+
+  // The body opens with the same `# Title` the header prints, so drop it before rendering.
+  const body = stripLeadingH1(post.body);
 
   return (
     <ProseShell active="/blog">
-      <article className="mx-auto w-full max-w-[72ch] px-5 py-14 sm:px-8">
-        <Link href="/blog" className="text-[13.5px] font-medium text-ink-soft hover:text-ink">
-          ← Blog
-        </Link>
-        <div className="tnum mt-8 flex items-center gap-3 font-mono text-[12.5px] text-ink-faint">
-          <time dateTime={post.date}>{formatDate(post.date)}</time>
-          <span>·</span>
-          <span>{post.minutes} min read</span>
-        </div>
-        <div className="mt-3">
-          <Markdown source={post.body} />
-        </div>
+      <div className="mx-auto w-full max-w-[72ch] px-5 py-14 sm:px-8 md:py-20">
+        <article>
+          <header>
+            <Kicker href="/blog">Blog</Kicker>
+            <h1 className="mt-5 text-[34px] leading-[1.06] font-semibold tracking-[-0.03em] text-ink [text-wrap:balance] sm:text-[44px]">
+              {post.title}
+            </h1>
+            {post.description && (
+              <p className="mt-5 text-[17px] leading-[1.6] text-ink-soft sm:text-[18px]">{post.description}</p>
+            )}
+            <PostMeta date={post.date} minutes={post.minutes} className="mt-6 border-t border-line pt-5" />
+          </header>
 
-        {others.length > 0 && (
-          <div className="mt-20 border-t border-line pt-8">
-            <div className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-ink-faint">Keep reading</div>
-            <ul className="mt-4 space-y-4">
-              {others.map((p) => (
-                <li key={p.slug}>
-                  <Link href={`/blog/${p.slug}`} className="group block">
-                    <div className="text-[17px] font-semibold text-ink group-hover:underline group-hover:decoration-green group-hover:underline-offset-4">
-                      {p.title}
-                    </div>
-                    <div className="mt-1 text-[14px] text-ink-soft">{p.description}</div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div className="mt-2">
+            <Markdown source={body} />
           </div>
-        )}
-      </article>
+        </article>
+
+        <PostNav prev={prev} next={next} />
+
+        <MoreFromPayrail
+          heading="Read the rest of the picture."
+          items={[MORE_LINKS.docs, MORE_LINKS.whitepaper, MORE_LINKS.faq]}
+        />
+      </div>
     </ProseShell>
   );
 }

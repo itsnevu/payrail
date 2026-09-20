@@ -38,10 +38,14 @@ The money still goes straight to you. That matters and is often skipped: most ma
 
 The right contract does not need to hold anything. `transferFrom(buyer, merchant)` is one call; the contract just stands beside it, taking notes. Its balance is always zero. Nothing can be stolen from something that is empty.
 
-Nor does it need an expensive chain. Payrail runs on Robinhood Chain, an Ethereum L2 where a payment costs a few cents in gas. The link carries the network: the buyer's wallet is switched to it, and the payment is looked for there and nowhere else. Your client gets a link that just works, and you get one dashboard.
+Nor does it need a separate account anywhere. Payrail runs on Robinhood Chain, an Arbitrum Orbit L2 where the buyer pays gas in a little ETH and there is no Payrail fee. The link carries the network: the buyer's wallet is switched to it, and the payment is looked for there and nowhere else. Your client gets a link that just works, and you get one dashboard.
+
+One thing the link does not carry is your wallet address as a place to "just send to". A plain transfer to your address, from a wallet or an exchange withdrawal, arrives without the bill ID and is the old problem again. Only a payment made through the link names its invoice.
 
 ## So
 
 Those five words, "I sent it, please check", are not a complaint about payment. They are an admission that the payment system does not know what is being paid for. Once the transaction carries its own bill ID, the message never needs to be sent again. The client pays; the status changes; you see it when you open the dashboard, or you never see it at all because there is nothing left to check.
 
 That is what we built. How it works is in the [docs](/docs), and what can go wrong is on the [risks page](/docs/risks-and-limits), because "automatic" does not mean "unconditional".
+
+Next: [What Payrail is](/docs/what-payrail-is), then [Getting started](/docs/getting-started) to issue the first invoice.

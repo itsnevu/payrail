@@ -1,6 +1,8 @@
-import Link from "next/link";
 import { ProseShell } from "@/components/prose/ProseShell";
-import { blogPosts, formatDate } from "@/lib/content";
+import Kicker from "@/components/blog/Kicker";
+import PostCard from "@/components/blog/PostCard";
+import MoreFromPayrail, { MORE_LINKS } from "@/components/blog/MoreFromPayrail";
+import { blogPosts } from "@/lib/content";
 
 export const metadata = {
   title: "Blog: Payrail",
@@ -8,33 +10,43 @@ export const metadata = {
 };
 
 export default function BlogIndex() {
+  // Newest first, from `content.ts`. The first one is featured.
   const posts = blogPosts();
+  const [featured, ...rest] = posts;
+
   return (
     <ProseShell active="/blog">
-      <div className="mx-auto w-full max-w-[820px] px-5 py-16 sm:px-8 md:py-24">
-        <h1 className="text-[44px] leading-[1.05] font-semibold tracking-[-0.03em] text-ink">Blog</h1>
-        <p className="mt-4 max-w-[56ch] text-[17px] leading-relaxed text-ink-soft">
-          Notes on why &ldquo;I sent it, please check&rdquo; is a bigger problem than it looks, and what we built to
-          make it go away.
-        </p>
+      <div className="mx-auto w-full max-w-[1020px] px-5 py-14 sm:px-8 md:py-20">
+        <header className="max-w-[64ch]">
+          <Kicker>Blog</Kicker>
+          <h1 className="mt-5 text-[40px] leading-[1.04] font-semibold tracking-[-0.03em] text-ink sm:text-[48px] lg:text-[56px]">
+            Notes on what shipped, and why.
+          </h1>
+          <p className="mt-5 max-w-[56ch] text-[17px] leading-relaxed text-ink-soft">
+            Why &ldquo;I sent it, please check&rdquo; is a bigger problem than it looks, what we built to make it go
+            away, and the decisions behind each release. Grounded in the code, not in a roadmap.
+          </p>
+          <div className="tnum mt-4 font-mono text-[12.5px] text-ink-faint">
+            {posts.length} {posts.length === 1 ? "post" : "posts"}
+          </div>
+        </header>
 
-        <ul className="mt-14 divide-y divide-line border-t border-line">
-          {posts.map((post) => (
-            <li key={post.slug}>
-              <Link href={`/blog/${post.slug}`} className="group block py-8">
-                <div className="tnum flex items-center gap-3 font-mono text-[12.5px] text-ink-faint">
-                  <time dateTime={post.date}>{formatDate(post.date)}</time>
-                  <span>·</span>
-                  <span>{post.minutes} min</span>
-                </div>
-                <h2 className="mt-2 text-[27px] leading-[1.15] font-semibold tracking-[-0.02em] text-ink group-hover:underline group-hover:decoration-green group-hover:underline-offset-[6px]">
-                  {post.title}
-                </h2>
-                <p className="mt-3 max-w-[60ch] text-[16px] leading-relaxed text-ink-soft">{post.description}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {posts.length === 0 ? (
+          <div className="surface-inset mt-12 rounded-[24px] p-6 text-[15px] text-ink-soft">Nothing published yet.</div>
+        ) : (
+          <ul className="mt-12 grid gap-4 sm:grid-cols-2 md:gap-5">
+            <PostCard post={featured} featured />
+            {rest.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </ul>
+        )}
+
+        <MoreFromPayrail
+          heading="Looking for the reference material?"
+          lede="The blog explains decisions. The docs and the FAQ are where the facts live: what the contract does, what the app labels, and what is still missing."
+          items={[MORE_LINKS.docs, MORE_LINKS.faq]}
+        />
       </div>
     </ProseShell>
   );

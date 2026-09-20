@@ -1,74 +1,127 @@
 ---
 title: Contracts
-description: What PaymentProcessor does, the functions worth knowing, and how to run the whole thing locally.
-order: 5
+description: PaymentProcessor line by line, the key derivation, the deployments, the tests, and how to run or deploy it yourself.
+order: 8
+section: Under the hood
 ---
 
 # Contracts
 
-The entire onchain part of Payrail is **one small contract**: `PaymentProcessor.sol`, about 90 lines on top of OpenZeppelin. Small is deliberate. Every extra line in a contract is a line that cannot be fixed after deployment, and the work that truly needs a chain (moving USDC and recording that it happened) does not need more.
+The entire onchain part of Payrail is **one small contract**: `PaymentProcessor.sol`, 91 lines on top of OpenZeppelin 5, Solidity `0.8.24` pinned. Small is deliberate: every extra line is a line that cannot be fixed after deployment. What the backend does with the event is in [Verification and the indexer](/docs/verification-and-indexer); what can go wrong is in [Risks and limits](/docs/risks-and-limits).
 
-## PaymentProcessor
+## State
 
 ```solidity
-contract PaymentProcessor is ReentrancyGuard {
-    IERC20 public immutable usdc;
+IERC20 public immutable usdc;
 
-    struct Payment { address payer; uint96 amount; address merchant; uint64 paidAt; }
-    mapping(bytes32 => Payment) private _payments;
+struct Payment { address payer; uint96 amount; address merchant; uint64 paidAt; }
+mapping(bytes32 => Payment) private _payments;
+```
 
-    event PaymentReceived(bytes32 indexed invoiceId, bytes32 indexed salt, address indexed merchant,
-                          address payer, uint256 amount, uint256 timestamp);
+**`usdc`** is the token the contract moves, set once in the constructor, which reverts `InvalidToken` if the address is zero or has no code. On Robinhood Chain it points at USDG (Global Dollar, 6 decimals): the app labels amounts USDC; the token moved is USDG.
 
-    error InvalidToken();
-    error InvalidMerchant();
-    error InvalidAmount();
-    error InvoiceAlreadyPaid(bytes32 invoiceId);
+**`Payment`** packs into two storage slots. **`_payments`** maps a key to that record; `amount != 0` means paid, and since a zero amount is rejected on entry the check is exact.
 
-    function invoiceKey(bytes32 salt, address merchant, uint256 amount) public pure returns (bytes32);
-    function pay(bytes32 salt, address merchant, uint256 amount) external nonReentrant;
-    function isPaid(bytes32 invoiceId) external view returns (bool);
-    function getPayment(bytes32 invoiceId) external view returns (Payment memory);
+There is no `owner`, no `pause`, no `withdraw`, no `upgrade` and no parameter.
+
+## The key
+
+```solidity
+function invoiceKey(bytes32 salt, address merchant, uint256 amount) public pure returns (bytes32) {
+    return keccak256(abi.encode(salt, merchant, amount));
 }
 ```
 
-| Function | Caller | What happens |
-| --- | --- | --- |
-| `invoiceKey(salt, merchant, amount)` | anyone | `keccak256(abi.encode(salt, merchant, amount))`, the key every other function uses |
-| `pay(salt, merchant, amount)` | buyer | Validate, derive the key, record, `safeTransferFrom(buyer, merchant)`, emit |
-| `isPaid(invoiceId)` | anyone | `true` when `_payments[id].amount != 0` |
-| `getPayment(invoiceId)` | anyone | `{payer, merchant, amount, paidAt}`: onchain proof readable without our backend |
+The key is the terms. **`salt`** is issued by the backend: `keccak256` of the invoice's database id, a random cuid, so it cannot be guessed. **`merchant`** is the wallet that receives the funds. **`amount`** is the exact amount in smallest units. Change any of the three and you get a different key.
 
-There is no `owner`, no `pause`, no `withdraw`, no `upgrade`. The contract has no balance to withdraw and no parameter to change. `usdc` is `immutable`: one deployment serves one token.
+The backend computes the same hash offchain (`toOnchainId` in `web/src/lib/usdc.ts`) and stores it as `Invoice.onchainId`; the invoice page shows it as `Payment key (onchain)`. The key does not include the chain id; `Invoice.chainId` pins each invoice to its network.
 
-### What it guards
+## pay()
 
-- **Pay once.** `_payments[invoiceId].amount != 0` reverts with `InvoiceAlreadyPaid`. State is written before the transfer, and the function is `nonReentrant`.
-- **No funds held.** Direct buyer-to-merchant transfer through `SafeERC20`. Tokens that return `false` instead of reverting are still caught.
-- **No zero address, no zero amount.** Both revert with a named error.
+```solidity
+function pay(bytes32 salt, address merchant, uint256 amount) external nonReentrant
+```
 
-### What it does not guard
+The buyer calls this once, after approving at least `amount` to the contract. In order:
 
-The contract still does not store invoices, so it cannot tell you whether a `(salt, merchant, amount)` triple corresponds to a real invoice. What it **does** guarantee, since v2, is that the key is derived from all three terms. A call with the wrong merchant or the wrong amount lands on a different key: it moves USDC wherever the caller pointed it, and it records that payment under its own key, but it cannot mark the real invoice as paid or block the real buyer. The v1 griefing vector (lock any invoice for one unit of USDC) is closed and covered by a regression test.
+1. `merchant == address(0)` or `merchant == address(this)` reverts `InvalidMerchant`. The second half matters: tokens sent to the contract could never leave it.
+2. `amount == 0` or `amount > type(uint96).max` reverts `InvalidAmount`.
+3. `invoiceId = invoiceKey(salt, merchant, amount)`.
+4. `_payments[invoiceId].amount != 0` reverts `InvoiceAlreadyPaid(invoiceId)`. Pay once.
+5. Write `Payment{payer: msg.sender, amount, merchant, paidAt: block.timestamp}`.
+6. `usdc.safeTransferFrom(msg.sender, merchant, amount)`.
+7. `emit PaymentReceived(invoiceId, salt, merchant, msg.sender, amount, block.timestamp)`.
 
-The backend then confirms that the key in the event equals the `onchainId` it stored, and re-checks merchant and amount from the event as defense in depth (see [Verification and the indexer](/docs/verification-and-indexer)).
+State is written before the external call and the function is `nonReentrant`. `SafeERC20` turns a token that returns `false` into a revert, so a failed transfer never leaves a `Payment` record behind. Anyone can call `pay`; the backend does not check `payer`. Quote the signature as `pay(salt, merchant, amount)`: the first argument is the salt, not the derived key.
 
-## MockUSDC
+**Why funds never touch the contract.** The only token movement is `safeTransferFrom(msg.sender, merchant, amount)`, buyer to merchant. No code path makes the contract a recipient, and `InvalidMerchant` closes the one way a caller could name it as one. The balance is zero structurally, not by policy. Funds land in your wallet, not ours. Nothing to withdraw, so no `withdraw` and no admin key to steal.
 
-For local development, `MockUSDC.sol` is a 6-decimal ERC-20 with an open `mint()`. The deploy script mints 10,000 USDC to the first three hardhat accounts. On real networks the contract points at that chain's official USDC address through `USDC_ADDRESS_<NETWORK>`. Because `usdc` is immutable, **each network gets its own PaymentProcessor**: mainnet, testnet and local are separate deployments. The web app keys every address by chain id in `web/src/lib/deployments.json`.
+**Reading it back.** `isPaid(bytes32)` returns `_payments[id].amount != 0`; `getPayment(bytes32)` returns `{payer, amount, merchant, paidAt}`. Both are free `eth_call`s that anyone can make without our backend.
+
+## Event and errors
+
+| Item | Signature |
+| --- | --- |
+| Event | `PaymentReceived(bytes32 indexed invoiceId, bytes32 indexed salt, address indexed merchant, address payer, uint256 amount, uint256 timestamp)` |
+| Error | `InvalidToken()`: constructor, token address is zero or has no code |
+| Error | `InvalidMerchant()`: merchant is zero or the contract itself |
+| Error | `InvalidAmount()`: amount is zero or above `uint96` |
+| Error | `InvoiceAlreadyPaid(bytes32 invoiceId)`: this key already has a payment |
+
+`applyPaymentLog` matches on `invoiceId`, then re-checks `merchant` and `amount` from the event as defense in depth.
+
+## What the contract does not know
+
+It does not store invoices, so it cannot tell whether `(salt, merchant, amount)` is a real invoice, a cancelled one, or terms someone made up. What it guarantees is that wrong terms land on a different key: a call with the wrong merchant or amount moves tokens wherever the caller pointed them and cannot mark the real invoice paid or block the real buyer. The v1 griefing vector (lock any invoice for one unit) is closed and covered by a regression test. A CANCELLED invoice is cancelled in our database only; the contract still accepts its terms and the backend then marks it PAID.
+
+## One token, one deployment
+
+`usdc` is `immutable`, so one deployment serves one token on one chain. The web app keys every address by chain id in `web/src/lib/deployments.json`.
+
+| Network | Chain id | PaymentProcessor | Token | Deployed |
+| --- | --- | --- | --- | --- |
+| Robinhood Chain | 4663 | `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D` | USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` | `2026-09-19T18:58:30.729Z` (20 September 2026 in UTC+7) |
+| Robinhood Chain Testnet | 46630 | not deployed yet | | |
+| Hardhat (local) | 31337 | per developer, written by `deploy:local` | MockUSDC, per developer | |
+
+Robinhood Chain is an Arbitrum Orbit L2 with ETH as the gas token. Its public RPC is content-filtered by some ISPs; the browser and the wallet use the same-origin relay `/api/rpc/4663` instead.
+
+> **Note:** the `31337` entry in `deployments.json` belongs to whoever ran the deploy script last. Those are not public addresses.
+
+**MockUSDC.** A 6-decimal ERC-20 with an open `mint()`, for local development only. `deploy:local` deploys it and mints 10,000 mock USDC (10,000,000,000 in smallest units) to each of the first three hardhat accounts.
+
+## Reading the contract on Blockscout
+
+You do not need Payrail to check a payment:
+
+```
+https://robinhoodchain.blockscout.com/address/0xD591A0d397179dE0692d50f43AC450C6cDF9C66D
+```
+
+Each `pay` transaction's Logs tab shows `PaymentReceived`; `topic1` is the payment key the invoice page shows as `Payment key (onchain)`.
+
+Source verification on Blockscout is still pending, so the Read contract tab may not work yet. Until it does, call the views over JSON-RPC with the ABI in `web/src/lib/PaymentProcessor.abi.json`: `isPaid(bytes32)` is selector `0xfeef6640`, `getPayment(bytes32)` is `0xe66eefc8`.
+
+## Tests
+
+`contracts/test/PaymentProcessor.test.ts`, 11 tests against MockUSDC:
+
+- **constructor**: rejects the zero address and non-contract addresses as the token.
+- **invoiceKey**: matches the offchain derivation; changes when any term changes.
+- **pay**: transfers USDC straight to the merchant, records the payment and emits the event; rejects paying the same terms twice; rejects zero amount, amounts above uint96, zero merchant and the contract itself as merchant; reverts without allowance and without balance, and records nothing; reverts when the token returns false instead of reverting (SafeERC20); lets anyone pay an invoice, not only the buyer who opened the link.
+- **griefing resistance (v1 regression)**: paying the wrong merchant with a known salt does not lock the real invoice; paying the wrong amount to the right merchant does not lock the real invoice.
+
+No CI; run them yourself. `web/scripts/e2e-local.mjs` (`npm run test:e2e` in `web/`) replays the v1 attack against a local stack and asserts the backend flips the real invoice to PAID exactly once. Two internal review passes, the second on 17 September 2026 with eight findings, all resolved. **Not independently audited.**
 
 ## Running locally
 
 ```bash
 cd contracts
 npm install
-npm test               # 11 tests: constructor, key derivation, pay, SafeERC20, griefing regression
+npm test               # 11 tests
 npm run node           # terminal 1: hardhat node on :8545, chainId 31337
-npm run deploy:local   # terminal 2: deploy MockUSDC + PaymentProcessor,
-                       #   mint USDC to 3 accounts, write web/src/lib/deployment.json
+npm run deploy:local   # terminal 2: MockUSDC + PaymentProcessor, writes web/src/lib/deployments.json and PaymentProcessor.abi.json
 ```
-
-`deploy:local` writes the addresses straight into `web/src/lib/`, so frontend and backend stay in sync without an extra step.
 
 ```bash
 cd ../web
@@ -76,34 +129,30 @@ cp .env.example .env
 npm install
 npm run db:push        # SQLite at prisma/dev.db
 npm run dev            # http://localhost:3000
+node scripts/indexer-loop.mjs   # optional: a local indexer that keeps running
 ```
-
-Optional, a local indexer that keeps running:
-
-```bash
-node scripts/indexer-loop.mjs
-```
-
-## Networks
-
-Payrail runs on Robinhood Chain. The registry is `web/src/lib/chains.ts`; a network is offered to merchants as soon as its PaymentProcessor address is known.
-
-| Network | Chain id | Gas | Explorer | Deployment |
-| --- | --- | --- | --- | --- |
-| Robinhood Chain | 4663 | ETH | robinhoodchain.blockscout.com | live: `PaymentProcessor` at `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D`, token USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` |
-| Robinhood Chain Testnet | 46630 | ETH | explorer.testnet.chain.robinhood.com | not yet |
-| Hardhat (local) | 31337 | ETH | none | per developer |
-
-Robinhood Chain is an Arbitrum Orbit L2, so the buyer needs a little ETH there for gas. The dollar token on Robinhood Chain is **USDG** (Global Dollar, 6 decimals); the app still labels amounts "USDC" until a USDC contract is available there. Its public RPC is filtered by some ISPs; the browser and the wallet therefore talk to the same-origin relay `/api/rpc/4663`, which the server forwards.
 
 ## Deploying to Robinhood Chain
 
-1. `contracts/.env`: `DEPLOYER_PRIVATE_KEY`, a wallet holding a little ETH on Robinhood Chain (a deploy costs about 0.00003 ETH).
-2. `npm run go:robinhood` (or `go:robinhood-testnet` for chain 46630). The script finds a working RPC, checks gas, probes the billing token on chain (USDG by default, or `USDC_ADDRESS_ROBINHOODMAINNET` when set), deploys, verifies on Blockscout, and writes `contracts/deployments/4663.json` plus the entry in `web/src/lib/deployments.json`.
-3. `web/.env`: `NEXT_PUBLIC_CHAINS=4663`, `CONFIRMATIONS_4663=2`. Restart the app; the network appears in `GET /api/chains`.
+`contracts/scripts/robinhood.mjs` is a one-shot deploy. It needs only `DEPLOYER_PRIVATE_KEY` in `contracts/.env`, the key of a wallet holding a little ETH on Robinhood Chain.
 
-## Production
+```bash
+cd contracts
+npm run go:robinhood                 # chain 4663
+npm run go:robinhood-testnet         # chain 46630
+npm run go:robinhood -- --dry-run    # check RPC, gas and token; deploy nothing
+```
 
-Switch the Prisma datasource to `postgresql`, run `POST /api/indexer` from cron with the `x-indexer-secret` header (one call scans every enabled chain, each with its own cursor), and set a real `INDEXER_SECRET`.
+What it checks, in order:
+
+1. **RPC.** Tries `ROBINHOOD_RPC_URL` from `.env`, then the public endpoint, and requires `eth_chainId` to answer `4663`. If an ISP filter answers instead, it starts a local forwarder that reaches the endpoint by IP with the right SNI.
+2. **Gas.** Reads the deployer's ETH balance. Zero stops the run; a dry run reports it and exits with code 2.
+3. **Token.** `USDC_ADDRESS_ROBINHOODMAINNET` (or `USDC_ADDRESS`) from `.env` wins; otherwise the known USDG address. It must have code and report `decimals() == 6`, or the script refuses.
+4. **Deploy** through `scripts/deploy.ts`, which writes `contracts/deployments/4663.json` and the `4663` entry in `web/src/lib/deployments.json`.
+5. **Verify** on Blockscout. Non-fatal; the command to re-run is printed if it fails.
+
+Then in `web/.env`: `NEXT_PUBLIC_CHAINS=4663`, `CONFIRMATIONS_4663=2`. Restart the app and the chain appears in `GET /api/chains`. Commit the deployment record.
+
+Still open: an independent audit, Blockscout source verification, a testnet deployment.
 
 Next: [API](/docs/api).

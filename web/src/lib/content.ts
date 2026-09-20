@@ -15,6 +15,8 @@ export type Doc = {
   date?: string;
   /** Sort order within a section, docs only. */
   order: number;
+  /** Group label in the docs sidebar and index, docs only (`section:` in frontmatter). */
+  section?: string;
   /** Estimated reading time in minutes. */
   minutes: number;
   body: string;
@@ -50,6 +52,7 @@ function readDoc(dir: string, file: string): Doc {
     description: meta.description ?? "",
     date: meta.date,
     order: Number(meta.order ?? 999),
+    section: meta.section || undefined,
     minutes: Math.max(1, Math.round(words / 220)),
     body,
   };
@@ -69,6 +72,28 @@ export function docsPages(): Doc[] {
   return list("docs").sort((a, b) => a.order - b.order);
 }
 
+/** A section is the first-seen `section:` label of a page, or "Docs" for pages that set none. */
+const UNSECTIONED = "Docs";
+
+/**
+ * Docs pages grouped by section. Sections appear in the order their first page has after sorting
+ * by `order`, and the pages inside each keep that same order, so the sidebar reads top to bottom
+ * exactly like the flat list does.
+ */
+export function docsSections(): Array<{ section: string; pages: Doc[] }> {
+  const out: Array<{ section: string; pages: Doc[] }> = [];
+  for (const page of docsPages()) {
+    const label = page.section ?? UNSECTIONED;
+    let group = out.find((g) => g.section === label);
+    if (!group) {
+      group = { section: label, pages: [] };
+      out.push(group);
+    }
+    group.pages.push(page);
+  }
+  return out;
+}
+
 /** Blog posts, newest first. */
 export function blogPosts(): Doc[] {
   return list("blog").sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
@@ -82,19 +107,29 @@ export function blogPost(slug: string): Doc | undefined {
   return blogPosts().find((d) => d.slug === slug);
 }
 
-/** The whitepaper is a single document rather than a section. */
-export function whitepaper(): Doc {
-  const raw = fs.readFileSync(path.join(ROOT, "whitepaper.md"), "utf8");
+/** A single top-level document (`content/<file>.md`) rather than a page inside a section. */
+function single(file: string, slug: string, fallbackTitle: string): Doc {
+  const raw = fs.readFileSync(path.join(ROOT, file), "utf8");
   const { meta, body } = parse(raw);
   return {
-    slug: "whitepaper",
-    title: meta.title ?? "Whitepaper",
+    slug,
+    title: meta.title ?? fallbackTitle,
     description: meta.description ?? "",
     date: meta.date,
     order: 0,
     minutes: Math.max(1, Math.round(body.split(/\s+/).length / 220)),
     body,
   };
+}
+
+/** The whitepaper is a single document rather than a section. */
+export function whitepaper(): Doc {
+  return single("whitepaper.md", "whitepaper", "Whitepaper");
+}
+
+/** The FAQ is a single document too, parsed exactly like the whitepaper. */
+export function faq(): Doc {
+  return single("faq.md", "faq", "FAQ");
 }
 
 export function formatDate(iso: string | undefined): string {

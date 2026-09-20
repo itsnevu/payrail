@@ -157,7 +157,7 @@ function NewInvoice() {
               {invNo(created.id)} <span className="font-normal text-ink-soft">is ready to send</span>
             </h1>
             <p className="mt-1 text-ink-soft">
-              {amountLabel} USDC · {created.merchant.name} · {createdChain.name}. It is marked PAID on its own once the payment lands.
+              {amountLabel} USDG · {created.merchant.name} · {createdChain.name}. It is marked PAID on its own once the payment lands.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -172,7 +172,7 @@ function NewInvoice() {
               url={link}
               merchantName={created.merchant.name}
               description={created.description}
-              amountLabel={`${amountLabel} USDC`}
+              amountLabel={`${amountLabel} USDG`}
               qrSize={220}
               footer="Scan the code or send the link. The buyer approves, then pays; the contract sends the funds to your wallet and Payrail records the event."
             />
@@ -286,7 +286,7 @@ function NewInvoice() {
                 pattern="^\d+(\.\d{1,6})?$" value={form.amount}
                 aria-describedby="amount-preview"
                 onChange={(e) => set("amount", e.target.value.replace(/,/g, ""))} />
-              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center font-mono text-sm text-ink-soft">USDC</span>
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center font-mono text-sm text-ink-soft">USDG</span>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
               {QUICK_AMOUNTS.map((q) => (
@@ -302,12 +302,12 @@ function NewInvoice() {
             </div>
             <div id="amount-preview" className="mt-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <span className={`font-mono text-sm tabular-nums ${amountOk ? "text-ink" : "text-ink-faint"}`}>
-                {sixDecimals} <span className="text-ink-soft">USDC</span>
+                {sixDecimals} <span className="text-ink-soft">USDG</span>
               </span>
               <span className="text-xs text-ink-faint">Up to 6 decimals. The buyer must pay this exact amount.</span>
             </div>
             {onRobinhood && (
-              <Help>On {chain.name} the token moved is USDG (Global Dollar, 6 decimals); the app labels it USDC.</Help>
+              <Help>On {chain.name} the token is USDG (Global Dollar, 6 decimals). The buyer must pay this exact amount.</Help>
             )}
             <FieldError msg={errors.amount} />
           </div>

@@ -20,15 +20,15 @@ So you open a spreadsheet, open the statement, and match line by line. Every mon
 
 ## Stablecoins do not fix it by themselves
 
-Moving to USDC solves several things: no banking hours, no borders, no mystery fees. But a plain USDC transfer carries **less** information than a bank transfer: amount, time, sender address. No memo field. The sender is 42 hex characters you have never seen before.
+Moving to USDG solves several things: no banking hours, no borders, no mystery fees. But a plain USDG transfer carries **less** information than a bank transfer: amount, time, sender address. No memo field. The sender is 42 hex characters you have never seen before.
 
-If you bill in USDC and wait for clients to send to your address, you have only moved the spreadsheet into an explorer. Matching is still manual; the font is just monospace now.
+If you bill in USDG and wait for clients to send to your address, you have only moved the spreadsheet into an explorer. Matching is still manual; the font is just monospace now.
 
 ## What is actually needed
 
 The payment has to **say the name of its own bill**. Not in a memo field people forget, but inside the transaction, as something that cannot be dropped or mistyped.
 
-On a blockchain that is easy in a way it never was at a bank: the buyer does not send USDC to your address, they call a contract function with the **bill ID** as an argument. The contract forwards the USDC to you in the same transaction and records an event: *invoice X paid by Z for N*. That event is on chain forever, readable by anyone, and cannot be faked.
+On a blockchain that is easy in a way it never was at a bank: the buyer does not send USDG to your address, they call a contract function with the **bill ID** as an argument. The contract forwards the USDG to you in the same transaction and records an event: *invoice X paid by Z for N*. That event is on chain forever, readable by anyone, and cannot be faked.
 
 Now matching is no longer a guess. Your server reads the event, finds the bill with that ID, checks the recipient and the amount, and marks it paid. No screenshots. No "was that you?". No three anonymous 250s, because each one carries its own ID.
 

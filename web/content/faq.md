@@ -8,7 +8,7 @@ date: 2026-09-20
 
 Short answers, grounded in the code. Where a question deserves a full page, the answer links to it. Where the honest answer is "not yet", it says so. If your question is missing, write to support@payrail.app.
 
-> **Note:** The app labels every amount USDC. On Robinhood Chain the token actually moved is USDG (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. "The token" below means that contract. The section on Robinhood Chain and USDG explains why the label is stale.
+> **Note:** The app labels every amount USDG. On Robinhood Chain the token actually moved is USDG (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. "The token" below means that contract. The section on Robinhood Chain and USDG explains why the label is stale.
 
 ## General
 
@@ -75,7 +75,7 @@ Overdue PENDING invoices are marked EXPIRED when the list, detail or stats endpo
 
 ### Can I export my invoices?
 
-Export CSV on the dashboard downloads every invoice for the selected merchant: 15 columns including `amount_usdc`, `status`, `paid_at`, `payer`, `tx_hash` and `tx_url`. The same file is at `GET /api/invoices/export?merchantId=<id>`. Amounts are written as decimals (`250.00`), labelled USDC for the reason explained below.
+Export CSV on the dashboard downloads every invoice for the selected merchant: 15 columns including `amount_usdc`, `status`, `paid_at`, `payer`, `tx_hash` and `tx_url`. The same file is at `GET /api/invoices/export?merchantId=<id>`. Amounts are written as decimals (`250.00`), labelled USDG for the reason explained below.
 
 ## For buyers
 
@@ -111,9 +111,9 @@ Give it a minute. PAID needs the configured number of confirmations (`CONFIRMATI
 
 Robinhood Chain only, chain id 4663, an Arbitrum Orbit L2 with ETH as the gas token. The contract is deployed at `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D`. There is a testnet (46630) configured for rehearsals with no deployment yet, and a local Hardhat chain (31337) for development. A payment anywhere other than 4663 does not count for a production invoice.
 
-### Why does the app say USDC?
+### Why does the app say USDG?
 
-Because the code was written against a six-decimal dollar token it calls `usdc` throughout, and the label has not been changed yet. On Robinhood Chain the token the contract moves is USDG (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. Wherever the UI, the CSV or a notification says USDC, read USDG. The amounts are right; only the name is stale.
+Because the code was written against a six-decimal dollar token it calls `usdc` throughout, and the label has not been changed yet. On Robinhood Chain the token the contract moves is USDG (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. Wherever the UI, the CSV or a notification says USDG, read USDG. The amounts are right; only the name is stale.
 
 ### Where do I get USDG and ETH on Robinhood Chain?
 

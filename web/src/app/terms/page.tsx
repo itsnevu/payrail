@@ -31,8 +31,7 @@ const sections: LegalSectionDef[] = [
           with and has no say over it.
         </P>
         <P>
-          The app labels amounts <Term>USDC</Term>. On Robinhood Chain the token actually moved is <Term>USDG</Term>{" "}
-          (Global Dollar, 6 decimals). Payrail makes no statement about the value, backing or redeemability of that
+          Amounts are denominated in <Term>USDG</Term> (Global Dollar), the token moved on Robinhood Chain. Payrail makes no statement about the value, backing or redeemability of that
           token; those questions belong to its issuer.
         </P>
         <div className="grid gap-3 sm:grid-cols-2">

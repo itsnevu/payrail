@@ -45,7 +45,7 @@ export default function Receipt({
 
       <div className="flex flex-wrap items-baseline gap-x-1.5">
         <span className="tnum text-2xl font-semibold tracking-tight">{formatUsdc(amount)}</span>
-        <span className="text-sm text-ink-soft">USDC</span>
+        <span className="text-sm text-ink-soft">USDG</span>
         <span className="text-sm text-ink-soft">to {merchantName}</span>
       </div>
 

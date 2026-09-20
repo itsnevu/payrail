@@ -6,7 +6,7 @@ import { slugify } from "@/lib/markdown";
  * The body is a run of `## Section` headings, each followed by `### Question` headings whose
  * Markdown continues until the next heading. Lines inside a fenced code block are never treated
  * as headings. Everything before the first `##` is the intro (the h1, a lede paragraph and the
- * USDC/USDG note); a horizontal rule after the last answer starts the outro.
+ * token note); a horizontal rule after the last answer starts the outro.
  */
 
 export type FaqItem = {

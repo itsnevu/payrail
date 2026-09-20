@@ -51,7 +51,7 @@ export default function PayStepper({
     {
       key: "pay",
       name: "Pay",
-      sub: "USDC straight to the merchant",
+      sub: "USDG straight to the merchant",
       done: payDone,
       active: connected && approveDone && !payDone,
       busy: step === "paying",

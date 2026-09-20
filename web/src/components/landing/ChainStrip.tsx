@@ -46,7 +46,7 @@ export default function ChainStrip() {
             <span className="lp-chain-label">Token</span>
             <span className="lp-chain-value">USDG, 6 decimals</span>
             <span className="lp-chain-note" title={TOKEN}>
-              {shortAddr(TOKEN)} · labelled USDC in the app
+              {shortAddr(TOKEN)} · USDG (Global Dollar)
             </span>
           </li>
           <li className="lp-tile lp-chain-tile">

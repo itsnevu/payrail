@@ -3,7 +3,7 @@ import { CheckIcon, LinkIcon, WalletIcon } from "./Icons";
 /**
  * The three illustrations in the "Three steps" section: a tiny invoice card, a payment
  * link, and a paid receipt. Same fake invoice as the phone mockup (Alex, logo design,
- * 85.00 USDC) so the page tells one story. Pure markup and CSS; see .lp-step-* in globals.css.
+ * 85.00 USDG) so the page tells one story. Pure markup and CSS; see .lp-step-* in globals.css.
  */
 export type StepKind = "invoice" | "link" | "paid";
 
@@ -19,7 +19,7 @@ export default function StepArt({ kind }: { kind: StepKind }) {
           <div className="lp-step-field">
             <span className="lp-step-label">Amount</span>
             <span className="lp-step-value lp-step-amount">
-              85.00 <span className="lp-step-unit">USDC</span>
+              85.00 <span className="lp-step-unit">USDG</span>
             </span>
           </div>
           <div className="lp-step-id">

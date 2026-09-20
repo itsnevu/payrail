@@ -51,8 +51,7 @@ export function EmptyState() {
       <div>
         <p className="text-[16px] font-medium">No invoices yet</p>
         <p className="mx-auto mt-1.5 max-w-xs text-[14px] leading-relaxed text-ink-soft">
-          Create one, send the link, and it shows up here as PAID the moment the payment lands. The app labels amounts USDC; on
-          Robinhood Chain the token moved is USDG.
+          Create one, send the link, and it shows up here as PAID the moment the payment lands.
         </p>
       </div>
       <Link className="btn-primary" href={LINKS.newInvoice}>
@@ -129,7 +128,7 @@ export default function InvoiceList({ invoices, latestPaidId }: { invoices: Invo
                     <span className="block truncate text-[13px] text-ink-soft">{i.customerName ? i.description : i.merchant.name}</span>
                   </td>
                   <td className="tnum whitespace-nowrap px-3 py-3.5 text-right align-middle text-[16px]">
-                    {formatUsdc(i.amount)} <small className="text-[12px] text-ink-soft">USDC</small>
+                    {formatUsdc(i.amount)} <small className="text-[12px] text-ink-soft">USDG</small>
                   </td>
                   <td className="px-3 py-3.5 align-middle">
                     <StatusBadge status={i.status} />
@@ -170,7 +169,7 @@ export default function InvoiceList({ invoices, latestPaidId }: { invoices: Invo
                 </span>
                 <span className="shrink-0 text-right">
                   <span className="tnum flex items-baseline justify-end gap-1 text-[17px] leading-none">
-                    {formatUsdc(i.amount)} <small className="text-[11px] text-ink-soft">USDC</small>
+                    {formatUsdc(i.amount)} <small className="text-[11px] text-ink-soft">USDG</small>
                   </span>
                   <span className="mt-1.5 flex justify-end">
                     <StatusBadge status={i.status} />

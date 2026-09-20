@@ -23,7 +23,7 @@ export default function PaymentLinkCard({
   url: string;
   merchantName: string;
   description: string;
-  /** "250.00 USDC" */
+  /** "250.00 USDG" */
   amountLabel: string;
   qrSize?: number;
   heading?: string;

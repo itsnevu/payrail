@@ -9,7 +9,7 @@ section: Using Payrail
 
 From the buyer's side, paying a Payrail invoice is opening one page and pressing one button. Behind it are two transactions, one event and a verification that can arrive by two routes. This page walks through it in order.
 
-> **Note:** The app labels amounts USDC. On Robinhood Chain the token moved is USDG (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. That is the token the wallet prompts for.
+> **Note:** The app labels amounts USDG. On Robinhood Chain the token moved is USDG (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. That is the token the wallet prompts for.
 
 ## Who is involved
 
@@ -27,8 +27,8 @@ From the buyer's side, paying a Payrail invoice is opening one page and pressing
 1. **Merchant** creates an invoice at [/invoices/new](/invoices/new). The backend derives the payment key: `salt = keccak256(invoice.id)`, `onchainId = keccak256(abi.encode(salt, merchant, amount))`. The merchant shares the link, `https://payrail.tech/pay/<id>`.
 2. **Buyer** opens the link. The page calls `GET /api/invoices/:id` and shows `Payment to <merchant name>`, description, amount, due date (when one was set), network, merchant wallet and contract address.
 3. **Buyer** connects a wallet. On another network the page offers `Switch to Robinhood Chain`; the wallet prompts to add the chain if it does not know it.
-4. **Page** reads three things on chain: `balanceOf(buyer)`, `allowance(buyer, PaymentProcessor)` and `isPaid(onchainId)`. The balance decides between `Pay <amount> USDC` and `Insufficient balance`. The allowance decides whether the approve row is shown. `isPaid` is a second opinion next to the database.
-5. **Buyer** presses Pay. If the allowance is short, **wallet** prompt one: `USDC.approve(PaymentProcessor, amount)`. The page shows `1/2 Approving USDC… (confirm in wallet)` and re-reads the allowance up to ten times, 1.5 seconds apart, until it covers the amount.
+4. **Page** reads three things on chain: `balanceOf(buyer)`, `allowance(buyer, PaymentProcessor)` and `isPaid(onchainId)`. The balance decides between `Pay <amount> USDG` and `Insufficient balance`. The allowance decides whether the approve row is shown. `isPaid` is a second opinion next to the database.
+5. **Buyer** presses Pay. If the allowance is short, **wallet** prompt one: `USDG.approve(PaymentProcessor, amount)`. The page shows `1/2 Approving USDG… (confirm in wallet)` and re-reads the allowance up to ten times, 1.5 seconds apart, until it covers the amount.
 6. **Wallet** prompt two: `PaymentProcessor.pay(salt, merchant, amount)`. The page shows `2/2 Paying… (confirm in wallet)`. All three arguments come from the invoice record, never from anything the buyer typed.
 7. **Contract** runs `pay`: rejects a bad merchant or amount; derives `invoiceId`; reverts with `InvoiceAlreadyPaid` if that key was ever paid; records `{payer, amount, merchant, paidAt}`; calls `usdc.safeTransferFrom(buyer, merchant, amount)`; emits `PaymentReceived`. The tokens go from the buyer's wallet to the merchant's wallet inside that one call.
 8. **Page** waits for the receipt, shows `Verifying onchain…`, then posts the `txHash` to `POST /api/invoices/:id/verify`. It retries up to 20 times, three seconds apart, while the backend answers `202`.
@@ -58,7 +58,7 @@ merchant      buyer / page          wallet        contract         backend      
 
 ## Why two transactions
 
-The billing token is an ERC-20 (USDG on Robinhood Chain, labelled USDC in the app). A contract cannot take tokens out of a wallet without an allowance, so the first transaction is `approve` and the second is `pay`. The contract spends the allowance once, in `safeTransferFrom(buyer, merchant, amount)`, moving the tokens from the buyer to the merchant in the same call. Nothing lands in the contract; there is no withdrawal step and no balance to steal.
+The billing token is an ERC-20 (USDG on Robinhood Chain, labelled USDG in the app). A contract cannot take tokens out of a wallet without an allowance, so the first transaction is `approve` and the second is `pay`. The contract spends the allowance once, in `safeTransferFrom(buyer, merchant, amount)`, moving the tokens from the buyer to the merchant in the same call. Nothing lands in the contract; there is no withdrawal step and no balance to steal.
 
 The allowance check in step 4 lets the page skip the first prompt. `approve` is called with exactly `amount`, so a normal payment consumes the whole allowance and the next invoice needs a new one. Only a buyer who granted a larger allowance elsewhere sees one prompt. Count on two.
 
@@ -82,7 +82,7 @@ Both routes end in `applyPaymentLog`. It looks up the invoice by `onchainId`; re
 
 | Interruption | What happens |
 | --- | --- |
-| Buyer rejects the approve prompt | Nothing was sent. The page shows the first line of the wallet's error and the button returns to `Pay <amount> USDC`. |
+| Buyer rejects the approve prompt | Nothing was sent. The page shows the first line of the wallet's error and the button returns to `Pay <amount> USDG`. |
 | Buyer approves, then rejects `pay` | The allowance sits unused. Pressing Pay again goes straight to prompt two. |
 | Balance below the amount | The button reads `Insufficient balance` and is disabled. Top up and reload. |
 | Wallet on the wrong network | `Switch to Robinhood Chain`. The chain definition lists the relay `/api/rpc/4663` first, so filtered connections still work. |

@@ -14,8 +14,8 @@ import { ArrowIcon } from "./Icons";
 const BEATS = [900, 1100, 1300, 700];
 
 const NOTES = [
-  ["Approve USDC", "The wallet grants the contract an allowance for exactly this amount."],
-  ["pay(invoiceId)", "One call. USDC goes straight to the merchant; the contract keeps nothing."],
+  ["Approve USDG", "The wallet grants the contract an allowance for exactly this amount."],
+  ["pay(invoiceId)", "One call. USDG goes straight to the merchant; the contract keeps nothing."],
   ["Verify onchain", "The backend reads the receipt and the PaymentReceived event, never the browser's claim."],
   ["Marked PAID", "ID, merchant and amount match. The invoice closes itself."],
 ] as const;
@@ -73,7 +73,7 @@ export default function PayDemo() {
         <h2 className="lp-head">
           Send the link.
           <br />
-          <span className="lp-muted">Receive USDC. Marked paid.</span>
+          <span className="lp-muted">Receive USDG. Marked paid.</span>
         </h2>
       </div>
       <div className="lp-portal order-2" ref={rootRef}>

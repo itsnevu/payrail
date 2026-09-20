@@ -33,7 +33,7 @@ The public Robinhood Chain RPC is content-filtered by some ISPs. The browser and
 
 ### PaymentProcessor live on Robinhood Chain
 
-Deployed to Robinhood Chain (chain id 4663) at `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D`, 18:58 UTC, which is 20 September in UTC+7 and why other pages give that date. It points at USDG, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`, 6 decimals. The app labels amounts USDC; on Robinhood Chain the token moved is USDG. Blockscout source verification is still pending. No deployment on the testnet (46630). See [Contracts](/docs/contracts).
+Deployed to Robinhood Chain (chain id 4663) at `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D`, 18:58 UTC, which is 20 September in UTC+7 and why other pages give that date. It points at USDG, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`, 6 decimals. The app labels amounts USDG; on Robinhood Chain the token moved is USDG. Blockscout source verification is still pending. No deployment on the testnet (46630). See [Contracts](/docs/contracts).
 
 ## 18 September 2026
 

@@ -85,7 +85,7 @@ export async function applyPaymentLog(
   const base = process.env.NEXT_PUBLIC_APP_URL || "";
   notifyMerchant(invoice.merchantId, {
     title: "Invoice paid",
-    body: `${invoice.customerName || invoice.description}: ${formatUsdc(log.amount)} USDC received on ${chainName(chainId)}`,
+    body: `${invoice.customerName || invoice.description}: ${formatUsdc(log.amount)} USDG received on ${chainName(chainId)}`,
     url: `${base}/invoices/${invoice.id}`,
     tag: `invoice-${invoice.id}`,
   }).catch((e) => console.warn("[push] notify failed", e));

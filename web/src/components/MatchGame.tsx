@@ -46,7 +46,7 @@ export default function MatchGame() {
         <span className="lp-match-tag">Your invoice</span>
         <span className="lp-match-who">{INVOICE.who}</span>
         <span className="lp-match-amt">
-          {INVOICE.amount} <small>USDC</small>
+          {INVOICE.amount} <small>USDG</small>
         </span>
         <span className="lp-match-meta">
           {INVOICE.id} · onchain ID <code>{INVOICE.key}</code>
@@ -82,7 +82,7 @@ export default function MatchGame() {
               <li key={t.id}>
                 <button type="button" className={cls} onClick={() => guess(t.id)} disabled={phase === "matched"}>
                   <span className="lp-match-from">
-                    <b>+{t.amount} USDC</b>
+                    <b>+{t.amount} USDG</b>
                     <span>from {t.from}</span>
                   </span>
                   <span className="lp-match-when">{t.when}</span>

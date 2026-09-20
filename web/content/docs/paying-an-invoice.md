@@ -13,9 +13,9 @@ Before anything else: check that the address bar says `payrail.tech`, and that t
 
 ## What the page shows
 
-**Payment to** and the merchant's name, a status pill (PENDING until paid), the description and the amount labelled USDC. Below, in small type: **Due** (if set), **Network** (Robinhood Chain), **To wallet** (the merchant's address) and **Contract** (the PaymentProcessor).
+**Payment to** and the merchant's name, a status pill (PENDING until paid), the description and the amount labelled USDG. Below, in small type: **Due** (if set), **Network** (Robinhood Chain), **To wallet** (the merchant's address) and **Contract** (the PaymentProcessor).
 
-> **Note:** the app labels amounts USDC. On Robinhood Chain the token that moves is USDG (Global Dollar, 6 decimals, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`). Your wallet may name the token USDG in its prompts. That is expected.
+> **Note:** the app labels amounts USDG. On Robinhood Chain the token that moves is USDG (Global Dollar, 6 decimals, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`). Your wallet may name the token USDG in its prompts. That is expected.
 
 The **To wallet** address comes from the merchant's registration record, not from whoever created the invoice. The contract at `0xD591A0d397179dE0692d50f43AC450C6cDF9C66D` forwards tokens from your wallet to that address; it never holds a balance. If the invoice is already paid, expired or cancelled, the page says so and there is no button.
 
@@ -31,11 +31,11 @@ Gas is paid in **ETH**. You need a little ETH on Robinhood Chain on top of the s
 
 ## Balance and allowance
 
-Connected on the right network, the page reads three things from the chain: your token balance, the allowance you have granted the PaymentProcessor, and `isPaid(key)` for this invoice. **Your USDC balance** is shown under the step list. If it is below the invoice amount, the button reads **Insufficient balance** and is disabled. If your allowance already covers the amount, the Approve step disappears and paying is one transaction.
+Connected on the right network, the page reads three things from the chain: your token balance, the allowance you have granted the PaymentProcessor, and `isPaid(key)` for this invoice. **Your USDG balance** is shown under the step list. If it is below the invoice amount, the button reads **Insufficient balance** and is disabled. If your allowance already covers the amount, the Approve step disappears and paying is one transaction.
 
 ## Approve
 
-Press **Pay**. If your allowance is short, the wallet opens the first prompt: `approve(PaymentProcessor, amount)` on the token contract. The button reads `1/2 Approving USDC… (confirm in wallet)`.
+Press **Pay**. If your allowance is short, the wallet opens the first prompt: `approve(PaymentProcessor, amount)` on the token contract. The button reads `1/2 Approving USDG… (confirm in wallet)`.
 
 The approval is for the **exact invoice amount**, not unlimited; with a standard token, `pay()` spends all of it and the allowance is back to zero. Approving costs gas and moves nothing. The page then re-reads your allowance up to ten times, 1.5 seconds apart, and opens the second prompt.
 

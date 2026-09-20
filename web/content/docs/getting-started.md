@@ -15,7 +15,7 @@ The first five minutes on [https://payrail.tech](https://payrail.tech): register
 
 **No ETH, no tokens.** Registering and creating invoices are plain API calls, not transactions. You sign nothing and pay no gas. Only the buyer needs funds: a little ETH on Robinhood Chain for gas, and enough of the dollar token to cover the invoice.
 
-**One network.** Payrail runs on Robinhood Chain (chain id 4663), an Arbitrum Orbit L2 with ETH as the gas token. The app labels amounts USDC; the token that moves on Robinhood Chain is USDG (Global Dollar, 6 decimals). Same amount, same decimals, a different ticker on screen.
+**One network.** Payrail runs on Robinhood Chain (chain id 4663), an Arbitrum Orbit L2 with ETH as the gas token. The app labels amounts USDG; the token that moves on Robinhood Chain is USDG (Global Dollar, 6 decimals). Same amount, same decimals, a different ticker on screen.
 
 ## 1. Connect and register
 
@@ -33,7 +33,7 @@ Press **New invoice** on the dashboard, or open [/invoices/new](/invoices/new).
 | --- | --- |
 | Description | Required, up to 500 characters. The buyer sees it. |
 | Customer name | Optional, up to 200 characters. |
-| Amount (USDC) | Greater than zero, up to 6 decimals. Quick chips: `50`, `100`, `250`, `500`, `1000`. |
+| Amount (USDG) | Greater than zero, up to 6 decimals. Quick chips: `50`, `100`, `250`, `500`, `1000`. |
 | Due date | Optional. The day is stored as midnight UTC at its start, so pick tomorrow or later; a due date of today is already past and the invoice reads EXPIRED at once. Past the due date the payment page refuses to pay and the invoice is marked EXPIRED the next time it is read. The contract does not know about due dates; a direct `pay()` call still goes through and the invoice becomes PAID. |
 
 The **Buyer sees** panel beside the form previews the payment page as you type. Press **Create invoice & payment link**. You land on the invoice page.
@@ -58,7 +58,7 @@ Send the link, not your wallet address. A plain transfer to your address, includ
 
 The payment page shows `Payment to <your name>`, the description, the amount, the due date if you set one, the network, and shortened forms of your wallet address and the contract address. The buyer connects a wallet. On another network the page offers **Switch to Robinhood Chain**; the wallet prompts to add the chain if it does not know it.
 
-The buyer presses **Pay <amount> USDC**. That takes up to two wallet prompts: an approval for the contract to move the amount (skipped when an earlier approval still covers it), then `pay(salt, merchant, amount)`. The contract forwards the funds from the buyer to your wallet in that same transaction and never holds them. The page shows `Verifying onchain…`, then `Invoice paid`. Step by step in [Paying an invoice](/docs/paying-an-invoice).
+The buyer presses **Pay <amount> USDG**. That takes up to two wallet prompts: an approval for the contract to move the amount (skipped when an earlier approval still covers it), then `pay(salt, merchant, amount)`. The contract forwards the funds from the buyer to your wallet in that same transaction and never holds them. The page shows `Verifying onchain…`, then `Invoice paid`. Step by step in [Paying an invoice](/docs/paying-an-invoice).
 
 ## 5. Watch the status change to PAID
 
@@ -68,7 +68,7 @@ PAID is decided by our server from the `PaymentReceived` event in the receipt, a
 
 ## 6. Dashboard, stats and CSV
 
-The dashboard shows **Received**, the total of verified payments, and a line like `3 invoices · 1 awaiting payment · 250.00 USDC outstanding`. The **Activity** panel lists the last five verified payments with their block numbers. Above the list, a merchant select (`All merchants` or one of them) and a row of status chips (All, Pending, Paid, plus Expired and Cancelled when any exist) narrow what is shown; the chips filter the loaded list and change nothing on the server.
+The dashboard shows **Received**, the total of verified payments, and a line like `3 invoices · 1 awaiting payment · 250.00 USDG outstanding`. The **Activity** panel lists the last five verified payments with their block numbers. Above the list, a merchant select (`All merchants` or one of them) and a row of status chips (All, Pending, Paid, plus Expired and Cancelled when any exist) narrow what is shown; the chips filter the loaded list and change nothing on the server.
 
 **Export CSV** downloads every invoice for the selected merchant (every merchant when the filter reads `All merchants`) as `payrail-invoices-<timestamp>.csv`, one row per invoice with network, amount, status, payer, transaction hash, explorer URL and block number. The amount column is named `amount_usdc`; on Robinhood Chain those units are USDG. Columns in [API](/docs/api).
 
@@ -84,7 +84,7 @@ Push is optional. When the browser supports it and the server has Web Push keys,
 
 > **Tip:** Pay yourself before you bill anyone. It costs a little gas, and the money ends up back in your own wallet.
 
-1. Put a little ETH and at least 1 USDG (the app shows it as 1 USDC) in a second wallet, the buyer.
+1. Put a little ETH and at least 1 USDG (the app shows it as 1 USDG) in a second wallet, the buyer.
 2. From your merchant wallet, create an invoice for `1` with the description `Test`.
 3. Open the payment link from the buyer wallet, ideally on a phone. Approve, then pay.
 4. Back on the merchant dashboard, the invoice turns PAID once the transaction has the required confirmations, with the block number and a Blockscout link.

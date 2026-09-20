@@ -27,7 +27,7 @@ export const wagmiConfig = createConfig({
             showQrModal: true,
             metadata: {
               name: "Payrail",
-              description: "USDC invoices, matched onchain.",
+              description: "USDG invoices, matched onchain.",
               url: APP_URL,
               icons: [`${APP_URL}/icons/icon-512.png`],
             },

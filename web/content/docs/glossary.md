@@ -13,7 +13,7 @@ Short definitions of the words the other pages use without stopping to explain, 
 
 **allowance.** How much of a token one address lets another move on its behalf. The pay page reads `allowance(buyer, PaymentProcessor)` and skips approve when it already covers the invoice. [Paying an invoice](/docs/paying-an-invoice).
 
-**approve.** The ERC-20 call that sets an allowance, `USDC.approve(PaymentProcessor, amount)`. The first of the buyer's two wallet prompts, before `pay`. [Payment flow](/docs/payment-flow).
+**approve.** The ERC-20 call that sets an allowance, `USDG.approve(PaymentProcessor, amount)`. The first of the buyer's two wallet prompts, before `pay`. [Payment flow](/docs/payment-flow).
 
 **Arbitrum Orbit.** The framework Robinhood Chain is built on: a layer 2 that runs the same EVM, so ordinary wallets and ERC-20 tokens work unchanged. [Wallet setup](/docs/wallet-setup).
 
@@ -83,7 +83,7 @@ Short definitions of the words the other pages use without stopping to explain, 
 
 **transaction hash (txHash).** The 32-byte identifier of a transaction. The pay page sends it to `/verify` as a pointer to a receipt; on its own it claims nothing. Unique in the database. [Verification](/docs/verification-and-indexer).
 
-**USDC (as used in the UI).** The label the app, CSV export and push notifications use for amounts. On Robinhood Chain the token actually moved is USDG; the label has not been renamed yet. [Wallet setup](/docs/wallet-setup).
+**USDG (as used in the UI).** The label the app, CSV export and push notifications use for amounts. On Robinhood Chain the token actually moved is USDG; the label has not been renamed yet. [Wallet setup](/docs/wallet-setup).
 
 **USDG.** Global Dollar, the dollar stablecoin on Robinhood Chain, 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. `PaymentProcessor` is bound to it, immutably. [Contracts](/docs/contracts).
 

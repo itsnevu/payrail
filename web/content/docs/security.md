@@ -9,7 +9,7 @@ section: Under the hood
 
 This page is the threat model behind [Risks and limits](/docs/risks-and-limits). That page lists what can go wrong. This one says who we assume is hostile, where the trust boundaries sit, and which guarantees hold on each side. Read it before self-hosting.
 
-One naming note applies throughout. The app labels amounts USDC. On Robinhood Chain the token that actually moves is USDG (Global Dollar, 6 decimals, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`).
+One naming note applies throughout. The app labels amounts USDG. On Robinhood Chain the token that actually moves is USDG (Global Dollar, 6 decimals, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`).
 
 ## Threat model
 

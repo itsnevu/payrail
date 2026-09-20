@@ -58,7 +58,7 @@ export default function BuyerPreview({
             {description || <span className="text-ink-faint">What is this for?</span>}
           </div>
           <div className={`tnum mt-1 text-4xl font-bold tracking-[-0.02em] [overflow-wrap:anywhere] ${amountOk ? "" : "text-ink-faint"}`}>
-            {amountLabel} <span className="text-lg font-normal tracking-normal text-ink-soft">USDC</span>
+            {amountLabel} <span className="text-lg font-normal tracking-normal text-ink-soft">USDG</span>
           </div>
         </div>
 
@@ -92,7 +92,7 @@ export default function BuyerPreview({
         </dl>
 
         <div className="btn-primary w-full py-3 text-center opacity-60" aria-hidden="true">
-          Pay {amountLabel} USDC
+          Pay {amountLabel} USDG
         </div>
         <p className="text-center text-[11px] text-ink-faint">
           Powered by Payrail · Funds go straight to the merchant and are never held.

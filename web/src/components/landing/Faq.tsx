@@ -37,14 +37,13 @@ const ITEMS: Item[] = [
     ],
   },
   {
-    id: "usdc",
-    q: "Why does the app say USDC?",
+    id: "usdg",
+    q: "Which token does the buyer pay with?",
     a: [
       <Fragment key="p3">
-        Because the code was written against a six-decimal dollar token it calls <code>usdc</code> throughout, and
-        the label has not been changed yet. On Robinhood Chain the token the contract moves is USDG (Global Dollar),
-        6 decimals, at <code>0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168</code>. Wherever the UI, the CSV or a
-        notification says USDC, read USDG. The amounts are right; only the name is stale.
+        USDG (Global Dollar), the six-decimal dollar stablecoin on Robinhood Chain, at{" "}
+        <code>0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168</code>. The invoice amount is the exact USDG amount the
+        buyer sends; the contract forwards it to the merchant wallet in the same transaction and keeps nothing.
       </Fragment>,
     ],
   },

@@ -48,9 +48,9 @@ A payment is at most two transactions, `approve` and `pay`, so a little ETH cove
 
 Getting ETH onto Robinhood Chain is outside Payrail. Check Robinhood's own documentation for the current options; we do not run a bridge or a faucet.
 
-## USDG, labelled USDC
+## USDG, labelled USDG
 
-The token that moves when an invoice is paid is **USDG** (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. The app labels amounts "USDC" on every screen, in the CSV export and in notifications; on Robinhood Chain the token moved is USDG. An invoice for 100 USDC is paid with exactly 100 USDG. Any other token, or USDG on any other network, does not count.
+The token that moves when an invoice is paid is **USDG** (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. The app labels amounts "USDG" on every screen, in the CSV export and in notifications; on Robinhood Chain the token moved is USDG. An invoice for 100 USDG is paid with exactly 100 USDG. Any other token, or USDG on any other network, does not count.
 
 The buyer needs USDG in the paying wallet before opening the link. The pay page reads `balanceOf` and disables the button as **Insufficient balance** when the balance is below the invoice amount. How USDG gets into a wallet on Robinhood Chain is, again, documented by Robinhood, not by us.
 

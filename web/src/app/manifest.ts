@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Payrail",
     short_name: "Payrail",
     description:
-      "Create a USDC invoice, send a payment link, and let the onchain payment be matched to the right invoice.",
+      "Create a USDG invoice, send a payment link, and let the onchain payment be matched to the right invoice.",
     // The installed app opens straight into the dashboard, not the marketing page.
     start_url: LINKS.app,
     scope: "/",

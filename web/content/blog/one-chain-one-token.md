@@ -18,7 +18,7 @@ Robinhood Chain is an Arbitrum Orbit L2 with ETH as the gas token. The deployed 
 
 ## One token, and the label
 
-The token that actually moves on Robinhood Chain is **USDG** (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. The app labels every amount USDC: the amount field, the pay button, the CSV column `amount_usdc`, the push notification. The contract's storage variable is called `usdc` too.
+The token that actually moves on Robinhood Chain is **USDG** (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. The app labels every amount USDG: the amount field, the pay button, the CSV column `amount_usdc`, the push notification. The contract's storage variable is called `usdc` too.
 
 > **Note:** The label is a name for "the dollar token this deployment moves", not a claim about who issues it. The address in the wallet prompt, and in `/api/chains`, is USDG.
 
@@ -67,6 +67,6 @@ The same applies to a lying RPC on the server side. It can hide a transaction an
 
 ## In one paragraph
 
-One network, pinned per invoice. One token, immutable in the contract, labelled USDC in the app and named USDG in every address that matters. No chain picker, no token picker, no bridging advice, no cross-chain matching. The buyer has to be on Robinhood Chain with USDG and a little ETH, and the pay page gets them there or says why it cannot. Where an ISP gets in the way, the relay carries the same requests through our origin and changes nothing about what we trust.
+One network, pinned per invoice. One token, immutable in the contract, labelled USDG in the app and named USDG in every address that matters. No chain picker, no token picker, no bridging advice, no cross-chain matching. The buyer has to be on Robinhood Chain with USDG and a little ETH, and the pay page gets them there or says why it cannot. Where an ISP gets in the way, the relay carries the same requests through our origin and changes nothing about what we trust.
 
 The mechanics of the pinning and the address filter are in [Verification and the indexer](/docs/verification-and-indexer). The relay's limits are in [Risks and limits](/docs/risks-and-limits) and the [API reference](/docs/api). What the buyer sees, step by step, is in [Paying an invoice](/docs/paying-an-invoice).

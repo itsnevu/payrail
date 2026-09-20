@@ -9,13 +9,13 @@ section: Using Payrail
 
 Two things must exist before an invoice can be paid: a **merchant** with a wallet address, and an **invoice** with an amount. Both are created from the dashboard, or through the API if you want to wire Payrail into your own system.
 
-> **Note:** The app labels amounts USDC. On Robinhood Chain the token that moves is USDG (Global Dollar, 6 decimals, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`). USDC on this page means that token.
+> **Note:** The app labels amounts USDG. On Robinhood Chain the token that moves is USDG (Global Dollar, 6 decimals, `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`). USDG on this page means that token.
 
 ## Register as a merchant
 
 Open the [dashboard](/app), connect a wallet, and enter your business name. That is all. The connected wallet becomes the **receiving address** for every invoice this merchant issues, and `walletAddress` is unique: one wallet, one merchant. Registering the same wallet again only updates the name.
 
-The name is display only. The contract uses the address, so check it twice before your first invoice: USDC sent to the wrong address cannot be pulled back. See [Wallet setup](/docs/wallet-setup).
+The name is display only. The contract uses the address, so check it twice before your first invoice: USDG sent to the wrong address cannot be pulled back. See [Wallet setup](/docs/wallet-setup).
 
 A merchant's wallet cannot be changed afterwards. `POST /api/merchants` keys on the wallet, so connecting a new wallet and registering creates a second merchant with its own invoices; it does not move anything from the first. If you lose access to a wallet, cancel its PENDING invoices and reissue them from the new merchant, because every one of them still pays the old address.
 
@@ -29,7 +29,7 @@ Open [New invoice](/invoices/new).
 | Network | yes | `chainId` | Shown only when the deployment enables more than one network. Production enables Robinhood Chain (4663) only, so it is hidden. |
 | Description | yes | `description` | 1 to 500 characters. Shown to the buyer. |
 | Customer name | no | `customerName` | Up to 200 characters. Not shown on the payment page. |
-| Amount (USDC) | yes | `amount` | Positive, up to 6 decimals. Quick chips for 50, 100, 250, 500 and 1,000. |
+| Amount (USDG) | yes | `amount` | Positive, up to 6 decimals. Quick chips for 50, 100, 250, 500 and 1,000. |
 | Due date | no | `dueAt` | The form offers today or later; the API accepts any ISO 8601 timestamp. See Due date below and the lifecycle table. |
 
 A **Buyer sees** panel previews the payment page as you type. `Create invoice & payment link` posts to `POST /api/invoices` and opens the invoice page.
@@ -74,7 +74,7 @@ While the invoice is PENDING, its page shows:
 - a **QR code** of the payment link, for a customer standing in front of you;
 - the link in a read-only field, with **Open** to view it;
 - **Share**, which opens the phone's share sheet where the Web Share API exists; everywhere else the same button reads **Copy** and copies the link to the clipboard;
-- **Send reminder**, the same button with the text `Friendly reminder, this invoice is still open: <description>, <amount> USDC` and the due date if set.
+- **Send reminder**, the same button with the text `Friendly reminder, this invoice is still open: <description>, <amount> USDG` and the due date if set.
 
 The link is public to anyone holding it. It shows the merchant name, description, amount, network, merchant wallet and contract address, and can be paid **exactly once** for **exactly** the listed amount, by any wallet. Do not put secrets in the description. Anyone with the id can also read the record through `GET /api/invoices/:id`, customer name included.
 
@@ -99,7 +99,7 @@ Only PENDING to PAID and PENDING to CANCELLED are intended. Two more happen in p
 
 **Cancel invoice** on the invoice page asks for confirmation and calls `DELETE /api/invoices/:id`. A PAID invoice returns `409 invoice already paid`; anything else becomes CANCELLED and the payment page stops offering Pay.
 
-> **Warning:** Cancel is a database flag. A payer who already holds the link, or the three `pay()` arguments, can still send the transaction. USDC reaches your wallet, the verify route or the indexer records the `PaymentReceived` event, and the invoice becomes PAID. Refunding is on you. See [Risks and limits](/docs/risks-and-limits).
+> **Warning:** Cancel is a database flag. A payer who already holds the link, or the three `pay()` arguments, can still send the transaction. USDG reaches your wallet, the verify route or the indexer records the `PaymentReceived` event, and the invoice becomes PAID. Refunding is on you. See [Risks and limits](/docs/risks-and-limits).
 
 There is no delete. `DELETE /api/invoices/:id` cancels; the row stays in the list, the export and the stats, and a CANCELLED invoice cannot be reopened. Create a new one instead.
 
@@ -111,7 +111,7 @@ An invoice cannot be edited. The amount and merchant are baked into `onchainId`,
 
 ## Through the API
 
-Everything the form does is one request. No authentication exists yet, so anyone can create an invoice for any registered merchant; a paid one still sends USDC to that merchant's wallet, because the address comes from the database.
+Everything the form does is one request. No authentication exists yet, so anyone can create an invoice for any registered merchant; a paid one still sends USDG to that merchant's wallet, because the address comes from the database.
 
 ```bash
 curl -X POST https://payrail.tech/api/invoices \

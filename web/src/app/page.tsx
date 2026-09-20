@@ -66,12 +66,12 @@ function Hero() {
       <HeroFx />
       <div className="lp-hero-inner">
       <div className="lp-hero-copy">
-        <p className="lp-eyebrow">USDC invoices · Non-custodial · Verified onchain</p>
+        <p className="lp-eyebrow">USDG invoices · Non-custodial · Verified onchain</p>
         <h1 className="lp-hero-title" style={{ "--reveal-delay": "60ms" } as React.CSSProperties}>
           Know exactly <em>which invoice</em> got paid.
         </h1>
         <p className="lp-body lp-muted lp-hero-lede" style={{ "--reveal-delay": "120ms" } as React.CSSProperties}>
-          Create a USDC invoice, send a payment link, and let Payrail match the onchain payment to the right invoice.
+          Create a USDG invoice, send a payment link, and let Payrail match the onchain payment to the right invoice.
           Funds land in your wallet, not ours.
         </p>
         <div className="lp-hero-actions" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
@@ -106,7 +106,7 @@ function Hero() {
             <li key={e.id}>
               <span className={`lp-dot${e.state === "waiting" ? " lp-dot-wait" : ""}`} />
               <span>
-                <b>{e.id}</b> · {e.who} · {e.amount} USDC · {e.meta}
+                <b>{e.id}</b> · {e.who} · {e.amount} USDG · {e.meta}
               </span>
               <span className="lp-strip-tag">{e.state === "paid" ? "PAID" : "PENDING"}</span>
             </li>
@@ -124,11 +124,11 @@ function Hero() {
 
 /** A slow mono ticker of the kind of rows the indexer writes. Pure CSS marquee, duplicated for the loop. */
 const TICKER = [
-  ["PaymentReceived", "INV-0231", "250.00 USDC", "block 18,204,311"],
-  ["PaymentReceived", "INV-0230", "1,180.00 USDC", "block 18,204,290"],
-  ["link opened", "INV-0232", "640.00 USDC", "2m ago"],
-  ["invoice created", "INV-0233", "95.00 USDC", "just now"],
-  ["PaymentReceived", "INV-0229", "3,400.00 USDC", "block 18,203,977"],
+  ["PaymentReceived", "INV-0231", "250.00 USDG", "block 18,204,311"],
+  ["PaymentReceived", "INV-0230", "1,180.00 USDG", "block 18,204,290"],
+  ["link opened", "INV-0232", "640.00 USDG", "2m ago"],
+  ["invoice created", "INV-0233", "95.00 USDG", "just now"],
+  ["PaymentReceived", "INV-0229", "3,400.00 USDG", "block 18,203,977"],
   ["CSV exported", "September", "12 invoices", "1 click"],
 ];
 
@@ -170,7 +170,7 @@ function Problem() {
         </h2>
         </div>
         <p className="lp-body lp-muted max-w-sm">
-          A USDC transfer carries an amount and a sender, and nothing else. Try matching one yourself: that step is
+          A USDG transfer carries an amount and a sender, and nothing else. Try matching one yourself: that step is
           the whole product.
         </p>
       </div>
@@ -265,8 +265,8 @@ function Trust() {
 }
 
 const STATS = [
-  { figure: "1", unit: "transaction", tag: "pay()", note: "From the buyer: approve USDC, then pay. Nothing else to do." },
-  { figure: "0", unit: "USDC held", tag: "custody", note: "Not by the contract, not by us. Funds land in your wallet in the same block." },
+  { figure: "1", unit: "transaction", tag: "pay()", note: "From the buyer: approve USDG, then pay. Nothing else to do." },
+  { figure: "0", unit: "USDG held", tag: "custody", note: "Not by the contract, not by us. Funds land in your wallet in the same block." },
   { figure: "2", unit: "ways to verify", tag: "txHash · indexer", note: "The receipt from the browser, and an indexer watching Robinhood Chain as the safety net." },
 ];
 
@@ -321,7 +321,7 @@ function Closing() {
               <span className="lp-wordmark text-[24px]">payrail</span>
             </div>
             <p className="lp-small lp-muted max-w-md">
-              Payrail is reconciliation software, not a payment service provider. USDC moves directly from buyer to
+              Payrail is reconciliation software, not a payment service provider. USDG moves directly from buyer to
               merchant on a public blockchain.
             </p>
             <span className="lp-small lp-muted">Not audited. Running on Robinhood Chain.</span>

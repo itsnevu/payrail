@@ -140,7 +140,7 @@ export function DashboardPhone() {
           <p className="ip-label">Received this month</p>
           <p className="ip-total">
             {received.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-            <small style={{ fontSize: "0.45em" }}>USDC</small>
+            <small style={{ fontSize: "0.45em" }}>USDG</small>
           </p>
           <p className="ip-sub">{INVOICES.length} invoices · 1 awaiting payment</p>
         </div>
@@ -192,8 +192,8 @@ export function DashboardPhone() {
 }
 
 export const PAY_STEPS: [string, string][] = [
-  ["Approve USDC", "allowance 250.00"],
-  ["pay(invoiceId)", "USDC to merchant"],
+  ["Approve USDG", "allowance 250.00"],
+  ["pay(invoiceId)", "USDG to merchant"],
   ["Verify onchain", "receipt + event match"],
   ["Status PAID", "history updated"],
 ];
@@ -226,7 +226,7 @@ export function PayPhone({
             <span className="ip-row-main">
               <span className="ip-row-sub">Acme Studio is billing</span>
               <span className="ip-row-big ip-row-big-left">
-                250.00 <small>USDC</small>
+                250.00 <small>USDG</small>
               </span>
             </span>
             <span className="ip-chip">Robinhood</span>
@@ -278,7 +278,7 @@ export function PayPhone({
         ) : (
           <div className="ip-card ip-card-pad">
             <button type="button" className="ip-pay" onClick={onPay} disabled={playing || !onPay}>
-              {playing ? "Paying…" : "Pay 250.00 USDC"}
+              {playing ? "Paying…" : "Pay 250.00 USDG"}
             </button>
           </div>
         )}

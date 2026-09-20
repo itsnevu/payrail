@@ -9,7 +9,7 @@ section: Help
 
 This page spells out what the other pages only mention in passing. If you are going to bill real money through Payrail, read this first.
 
-> **Note:** The app labels every amount USDC. On Robinhood Chain the token actually moved is USDG (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. "The token" below means that contract.
+> **Note:** The app labels every amount USDG. On Robinhood Chain the token actually moved is USDG (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. "The token" below means that contract.
 
 ## What you are trusting
 

@@ -1,6 +1,6 @@
 ---
 title: What Payrail is
-description: A USDC invoice that closes itself, what Payrail never does, and where the truth about a payment lives.
+description: A USDG invoice that closes itself, what Payrail never does, and where the truth about a payment lives.
 order: 1
 section: Start here
 ---
@@ -9,11 +9,11 @@ section: Start here
 
 Payrail turns "I sent it, please check" into a status that changes on its own. You create an invoice; the buyer pays from their wallet; that payment is matched to the right invoice from an **onchain event**, not from a screenshot and not from a claim in a chat.
 
-A Payrail invoice is not a bill waiting for someone to scan a bank statement. It carries a **unique key that travels inside the payment transaction**, derived from a random salt, the merchant address and the exact amount, so the transaction itself says which invoice it is paying and for how much. That one property is what makes reconciliation honest: there is no guessing whose 250 USDC arrived at 14:02, because every payment names itself.
+A Payrail invoice is not a bill waiting for someone to scan a bank statement. It carries a **unique key that travels inside the payment transaction**, derived from a random salt, the merchant address and the exact amount, so the transaction itself says which invoice it is paying and for how much. That one property is what makes reconciliation honest: there is no guessing whose 250 USDG arrived at 14:02, because every payment names itself.
 
 ## The one sentence
 
-Merchant creates a USDC invoice, the system generates a payment link, the buyer pays from a wallet, the backend verifies the transaction onchain, the invoice flips to **PAID**, and the merchant sees the history and exports CSV.
+Merchant creates a USDG invoice, the system generates a payment link, the buyer pays from a wallet, the backend verifies the transaction onchain, the invoice flips to **PAID**, and the merchant sees the history and exports CSV.
 
 ## What it is, and what it is not
 
@@ -29,7 +29,7 @@ Payrail is **reconciliation software, not a payment service provider**. The diff
 
 So Payrail is **not a custodian**: no holding account, no balance at the contract, no balance at Payrail, no withdrawal step. It cannot freeze, refund or dispute anything. It is not a full invoicing suite either; there are no taxes, discounts or partial payments yet. And it is **not audited**: two internal review passes, eleven tests and one attack replay, which is not the same thing.
 
-One naming detail matters. The app labels every amount **USDC**. On Robinhood Chain the token actually moved is **USDG** (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. Read USDC on screen as "the dollar token on Robinhood Chain".
+One naming detail matters. The app labels every amount **USDG**. On Robinhood Chain the token actually moved is **USDG** (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. Read USDG on screen as "the dollar token on Robinhood Chain".
 
 ## Who it is for
 
@@ -83,6 +83,6 @@ The contract knows one thing about a key: paid or not. PENDING, CANCELLED and EX
 
 - [Getting started](/docs/getting-started): register a wallet, create the first invoice, get paid.
 - [Wallet setup](/docs/wallet-setup): add Robinhood Chain, hold ETH for gas and the dollar token.
-- [FAQ](/faq): the short answers, including the USDC and USDG naming.
+- [FAQ](/faq): the short answers, including the USDG and USDG naming.
 - [Risks and limits](/docs/risks-and-limits): read before billing real money.
 - [Whitepaper](/whitepaper): the design, the contract and the failure modes.

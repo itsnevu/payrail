@@ -31,7 +31,7 @@ export default function DocsIndex() {
             Guides and reference for Payrail
           </h1>
           <p className="mt-5 max-w-[58ch] text-[17px] leading-relaxed text-ink-soft">
-            A USDC invoice that closes itself. These pages cover how to create one, how the buyer pays it, how the
+            A USDG invoice that closes itself. These pages cover how to create one, how the buyer pays it, how the
             payment is matched from the chain, what the contract and the backend guarantee, and what you are trusting
             when you use it.
           </p>

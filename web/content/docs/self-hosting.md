@@ -189,7 +189,7 @@ Nothing ties a self-hosted Payrail to our contract. Two ways to point elsewhere:
 1. **Deploy your own.** In `contracts/`, set `DEPLOYER_PRIVATE_KEY` with a little ETH on Robinhood Chain and run `npm run go:robinhood` (`-- --dry-run` first). It probes the token for code and `decimals == 6`, deploys, and writes the new address into `web/src/lib/deployments.json`. Rebuild the web app.
 2. **Override by environment.** Set `NEXT_PUBLIC_PAYMENT_PROCESSOR_ADDRESS_4663` and `NEXT_PUBLIC_USDC_ADDRESS_4663` and rebuild. These win over `deployments.json`.
 
-The token must have 6 decimals. The app labels amounts USDC; on Robinhood Chain the token moved is USDG, and the `USDC` in these variable names is a label, not a claim about the issuer.
+The token must have 6 decimals. The app labels amounts USDG; on Robinhood Chain the token moved is USDG, and the `USDG` in these variable names is a label, not a claim about the issuer.
 
 Verification filters receipt logs to the configured PaymentProcessor and the indexer scans only that address, so a payment to any other contract is not seen. Decide on the address before you issue invoices and do not switch it while invoices are PENDING. The contract has no owner, no pause and no parameters; there is nothing to configure after deployment.
 

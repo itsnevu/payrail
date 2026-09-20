@@ -49,7 +49,7 @@ Every fix here is something the app, the contract or the API already supports. I
 
 **Cause.** `balanceOf(buyer)` on the billing token is below the invoice amount, read on the invoice's chain.
 
-**Fix.** Top up the token on Robinhood Chain. Note the label: the app writes **USDC** everywhere, but the token moved on Robinhood Chain is **USDG** (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. If your wallet shows USDG where the page says USDC, that is expected.
+**Fix.** Top up the token on Robinhood Chain. Note the label: the app writes **USDG** everywhere, but the token moved on Robinhood Chain is **USDG** (Global Dollar, 6 decimals) at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. If your wallet shows USDG where the page says USDG, that is expected.
 
 ### Approving never finishes
 
@@ -138,6 +138,6 @@ Use the hash of the `pay` transaction, not the approve, or verify answers `no Pa
 
 **Cause.** The button is hidden when the browser lacks Web Push or when the server has no VAPID keys (`GET /api/push/subscribe` returns `enabled: false`). It reads `Notifications blocked` when you denied permission earlier.
 
-**Fix.** Allow notifications for the site in the browser settings, reload the dashboard, then press the button. It renders only for the merchant whose wallet is connected. Self-hosters set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`. The push says `Invoice paid` and labels the amount USDC like the rest of the app.
+**Fix.** Allow notifications for the site in the browser settings, reload the dashboard, then press the button. It renders only for the merchant whose wallet is connected. Self-hosters set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`. The push says `Invoice paid` and labels the amount USDG like the rest of the app.
 
 Next: [FAQ](/faq) for the short answers, [Risks and limits](/docs/risks-and-limits) for what no fix covers.

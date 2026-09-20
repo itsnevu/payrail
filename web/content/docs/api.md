@@ -15,7 +15,7 @@ The dashboard is just one client of this API. Everything the UI can do, HTTP can
 
 **JSON everywhere.** Bodies and responses are JSON, except the CSV export and the JSON-RPC relay. Dates are ISO 8601 strings. `BigInt` fields (`blockNumber`) and every amount are strings, so nothing is rounded on the way through `JSON.stringify`.
 
-**Amounts.** Stored and returned in **smallest units** (6 decimals): `"85000000"` is 85.00. The one exception is `POST /api/invoices`, where you send a decimal string (`"85.00"`) and the server converts. The app labels amounts USDC; on Robinhood Chain the token moved is USDG (Global Dollar, 6 decimals).
+**Amounts.** Stored and returned in **smallest units** (6 decimals): `"85000000"` is 85.00. The one exception is `POST /api/invoices`, where you send a decimal string (`"85.00"`) and the server converts. The app labels amounts USDG; on Robinhood Chain the token moved is USDG (Global Dollar, 6 decimals).
 
 **Validation errors.** Bodies are checked with zod. A failed check returns `400` with zod's flattened shape:
 

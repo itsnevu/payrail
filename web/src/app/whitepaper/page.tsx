@@ -15,7 +15,7 @@ export function generateMetadata() {
   const doc = whitepaper();
   return {
     title: "Whitepaper: Payrail",
-    description: doc.description || "The design, mechanics and failure modes of Payrail USDC payment reconciliation.",
+    description: doc.description || "The design, mechanics and failure modes of Payrail USDG payment reconciliation.",
   };
 }
 

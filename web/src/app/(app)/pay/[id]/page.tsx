@@ -59,7 +59,7 @@ export default function PayPage() {
   const ready = Boolean(cfg && PP && USDC);
   const wrongChain = isConnected && invChainId !== undefined && chainId !== invChainId;
 
-  // Read the buyer USDC balance and allowance
+  // Read the buyer USDG balance and allowance
   const { data: balance } = useReadContract({
     address: USDC, abi: erc20Abi, functionName: "balanceOf", chainId: invChainId,
     args: address ? [address] : undefined, query: { enabled: !!address && ready },
@@ -217,7 +217,7 @@ export default function PayPage() {
             {inv.description && <p className="text-sm text-ink-soft">{inv.description}</p>}
             <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
               <span className="tnum min-w-0 text-[44px] font-semibold leading-none tracking-[-0.03em] [overflow-wrap:anywhere] sm:text-[52px]">{formatUsdc(inv.amount)}</span>
-              <span className="font-mono text-base text-ink-soft">USDC</span>
+              <span className="font-mono text-base text-ink-soft">USDG</span>
             </div>
           </div>
 
@@ -297,14 +297,14 @@ export default function PayPage() {
                   tone={insufficient ? "alert" : "ink"}
                   hint={insufficient ? "not enough for this invoice" : undefined}
                 >
-                  {balance !== undefined ? `${formatUsdc(balance)} USDC` : "…"}
+                  {balance !== undefined ? `${formatUsdc(balance)} USDG` : "…"}
                 </DetailRow>
                 <DetailRow
                   label="Allowance"
                   tone="soft"
                   hint={allowance === undefined ? undefined : needsApprove ? "approval needed before paying" : "already covers this invoice"}
                 >
-                  {allowance !== undefined ? `${formatUsdc(allowance)} USDC` : "…"}
+                  {allowance !== undefined ? `${formatUsdc(allowance)} USDG` : "…"}
                 </DetailRow>
               </DetailList>
 
@@ -316,10 +316,10 @@ export default function PayPage() {
                   aria-busy={busy || undefined}
                   onClick={handlePay}
                 >
-                  {step === "approving" && "1/2 Approving USDC… (confirm in wallet)"}
+                  {step === "approving" && "1/2 Approving USDG… (confirm in wallet)"}
                   {step === "paying" && "2/2 Paying… (confirm in wallet)"}
                   {step === "verifying" && "Verifying onchain…"}
-                  {(step === "idle" || step === "error") && (insufficient ? "Insufficient balance" : `Pay ${formatUsdc(inv.amount)} USDC`)}
+                  {(step === "idle" || step === "error") && (insufficient ? "Insufficient balance" : `Pay ${formatUsdc(inv.amount)} USDG`)}
                 </button>
                 <p className="text-center text-[12px] text-ink-faint">
                   Gas is paid in {gasSymbol} on {cfg!.name}. {needsApprove ? "Two wallet prompts: approve, then pay." : "One wallet prompt."}

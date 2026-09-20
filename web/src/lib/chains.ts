@@ -212,7 +212,7 @@ export function requireChain(chainId: number): ChainConfig & { paymentProcessor:
   const c = getChain(chainId);
   if (!c) throw new Error(`chain ${chainId} is not enabled (NEXT_PUBLIC_CHAINS=${CHAIN_IDS.join(",")})`);
   if (!c.paymentProcessor || !c.usdc) {
-    throw new Error(`chain ${chainId} (${c.name}) has no PaymentProcessor/USDC address; deploy first or set NEXT_PUBLIC_*_ADDRESS_${chainId}`);
+    throw new Error(`chain ${chainId} (${c.name}) has no PaymentProcessor/USDG address; deploy first or set NEXT_PUBLIC_*_ADDRESS_${chainId}`);
   }
   return c as ChainConfig & { paymentProcessor: Address; usdc: Address };
 }

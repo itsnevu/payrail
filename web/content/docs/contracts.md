@@ -18,7 +18,7 @@ struct Payment { address payer; uint96 amount; address merchant; uint64 paidAt; 
 mapping(bytes32 => Payment) private _payments;
 ```
 
-**`usdc`** is the token the contract moves, set once in the constructor, which reverts `InvalidToken` if the address is zero or has no code. On Robinhood Chain it points at USDG (Global Dollar, 6 decimals): the app labels amounts USDC; the token moved is USDG.
+**`usdc`** is the token the contract moves, set once in the constructor, which reverts `InvalidToken` if the address is zero or has no code. On Robinhood Chain it points at USDG (Global Dollar, 6 decimals): the app labels amounts USDG; the token moved is USDG.
 
 **`Payment`** packs into two storage slots. **`_payments`** maps a key to that record; `amount != 0` means paid, and since a zero amount is rejected on entry the check is exact.
 
@@ -88,7 +88,7 @@ Robinhood Chain is an Arbitrum Orbit L2 with ETH as the gas token. Its public RP
 
 > **Note:** the `31337` entry in `deployments.json` belongs to whoever ran the deploy script last. Those are not public addresses.
 
-**MockUSDC.** A 6-decimal ERC-20 with an open `mint()`, for local development only. `deploy:local` deploys it and mints 10,000 mock USDC (10,000,000,000 in smallest units) to each of the first three hardhat accounts.
+**MockUSDC.** A 6-decimal ERC-20 with an open `mint()`, for local development only. `deploy:local` deploys it and mints 10,000 mock USDG (10,000,000,000 in smallest units) to each of the first three hardhat accounts.
 
 ## Reading the contract on Blockscout
 
@@ -108,7 +108,7 @@ Source verification on Blockscout is still pending, so the Read contract tab may
 
 - **constructor**: rejects the zero address and non-contract addresses as the token.
 - **invoiceKey**: matches the offchain derivation; changes when any term changes.
-- **pay**: transfers USDC straight to the merchant, records the payment and emits the event; rejects paying the same terms twice; rejects zero amount, amounts above uint96, zero merchant and the contract itself as merchant; reverts without allowance and without balance, and records nothing; reverts when the token returns false instead of reverting (SafeERC20); lets anyone pay an invoice, not only the buyer who opened the link.
+- **pay**: transfers USDG straight to the merchant, records the payment and emits the event; rejects paying the same terms twice; rejects zero amount, amounts above uint96, zero merchant and the contract itself as merchant; reverts without allowance and without balance, and records nothing; reverts when the token returns false instead of reverting (SafeERC20); lets anyone pay an invoice, not only the buyer who opened the link.
 - **griefing resistance (v1 regression)**: paying the wrong merchant with a known salt does not lock the real invoice; paying the wrong amount to the right merchant does not lock the real invoice.
 
 No CI; run them yourself. `web/scripts/e2e-local.mjs` (`npm run test:e2e` in `web/`) replays the v1 attack against a local stack and asserts the backend flips the real invoice to PAID exactly once. Two internal review passes, the second on 17 September 2026 with eight findings, all resolved. **Not independently audited.**

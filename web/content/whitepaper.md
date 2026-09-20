@@ -1,16 +1,16 @@
 ---
-title: "Payrail: Non-Custodial USDC Payment Reconciliation"
+title: "Payrail: Non-Custodial USDG Payment Reconciliation"
 description: "The design, mechanics and failure modes of Payrail: invoices that carry their key into the transaction, a contract that never holds funds, and two idempotent verification routes on Robinhood Chain."
 date: 2026-09-20
 ---
 
-# Payrail: Non-Custodial USDC Payment Reconciliation
+# Payrail: Non-Custodial USDG Payment Reconciliation
 
 ## Abstract
 
 Merchants who accept stablecoin payments face the same problem as merchants who accept bank transfers: money arrives without saying which bill it pays. Payrail solves this by making the **payment transaction carry the invoice key** as an argument to a contract, which forwards the dollar token directly to the merchant and emits a structured event. The backend matches the event to an invoice with four checks (key, chain, recipient, exact amount) and marks it PAID. The contract never holds funds, has no owner, and cannot be changed. Verification is idempotent and runs over two independent routes so that no payment is missed because of a client failure.
 
-Payrail runs on one network, **Robinhood Chain** (chain id 4663), with one dollar token. The app labels amounts USDC; the token moved on Robinhood Chain is USDG (Global Dollar, 6 decimals). Every invoice is pinned to the network it was created on, and the design of the key makes a payment on any other deployment harmless. This document describes the system as the code implements it on 20 September 2026, including what it does not do.
+Payrail runs on one network, **Robinhood Chain** (chain id 4663), with one dollar token. The app labels amounts USDG; the token moved on Robinhood Chain is USDG (Global Dollar, 6 decimals). Every invoice is pinned to the network it was created on, and the design of the key makes a payment on any other deployment harmless. This document describes the system as the code implements it on 20 September 2026, including what it does not do.
 
 ## 1. Motivation
 
@@ -229,7 +229,7 @@ Eleven tests in `contracts/test/PaymentProcessor.test.ts`, run with Hardhat agai
 | constructor | rejects the zero address and non-contract addresses as the token |
 | invoiceKey | matches the offchain derivation |
 | invoiceKey | changes when any term changes |
-| pay | transfers USDC straight to the merchant, records the payment and emits the event |
+| pay | transfers USDG straight to the merchant, records the payment and emits the event |
 | pay | rejects paying the same terms twice |
 | pay | rejects zero amount, amounts above uint96, zero merchant and the contract itself as merchant |
 | pay | reverts without allowance and without balance, and records nothing |
@@ -354,11 +354,11 @@ Payrail runs on **Robinhood Chain**, an Arbitrum Orbit L2 with ETH as the gas to
 
 **A single deployment keeps the trust surface small.** One contract address, one token address, one explorer to check. The merchant can verify the whole system with two bookmarks.
 
-### 7.2 USDG and the USDC label
+### 7.2 USDG and the USDG label
 
-The dollar token on Robinhood Chain is **USDG** (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. The app was written with the label "USDC" and still shows it everywhere: the amount field, the payment page, the CSV header `amount_usdc`, the push message. The contract's storage variable is called `usdc`. **On Robinhood Chain the token that moves is USDG.** The label is a naming debt, not a second token. Anyone reading the contract's `usdc()` view sees the USDG address.
+The dollar token on Robinhood Chain is **USDG** (Global Dollar), 6 decimals, at `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`. The app was written with the label "USDG" and still shows it everywhere: the amount field, the payment page, the CSV header `amount_usdc`, the push message. The contract's storage variable is called `usdc`. **On Robinhood Chain the token that moves is USDG.** The label is a naming debt, not a second token. Anyone reading the contract's `usdc()` view sees the USDG address.
 
-> **Note:** Wherever this document or the app says USDC, read it as the dollar token at the address above. On Robinhood Chain that is USDG. Payrail does not claim any particular issuer for it.
+> **Note:** Wherever this document or the app says USDG, read it as the dollar token at the address above. On Robinhood Chain that is USDG. Payrail does not claim any particular issuer for it.
 
 ### 7.3 The RPC relay
 
@@ -430,7 +430,7 @@ Everything in this section is true of the code today. None of it is a euphemism.
 
 **One token, one chain.** A payment on any other network does not count and has to be refunded by hand.
 
-**The UI says USDC.** The token on Robinhood Chain is USDG. See section 7.2.
+**The UI says USDG.** The token on Robinhood Chain is USDG. See section 7.2.
 
 **Blockscout source verification is pending.** The bytecode is on chain at the address in Appendix A and the source is in the repository; the explorer does not yet show them side by side.
 
@@ -464,7 +464,7 @@ What we intend to do, in roughly this order, with no dates attached. An item is 
 1. **Merchant authentication.** Wallet-based sign-in so that only the merchant can create, list and cancel their invoices. The README calls this required before production, and we agree.
 2. **An independent audit** of `PaymentProcessor.sol`. The contract will not change to accommodate this; the point is to have someone else say so.
 3. **Blockscout source verification** of the Robinhood Chain deployment, so the explorer shows the source next to the bytecode.
-4. **Naming the token correctly.** Replacing the USDC label with the symbol of the token actually moved on Robinhood Chain.
+4. **Naming the token correctly.** Replacing the USDG label with the symbol of the token actually moved on Robinhood Chain.
 5. **Webhooks.** An HTTP callback on PAID, alongside the existing Web Push, so integrators do not have to poll.
 6. **Operational hardening of the hosted deployment.** A second RPC provider for the indexer, PostgreSQL in place of SQLite, and the confirmation threshold reviewed against observed reorg depth.
 
@@ -552,7 +552,7 @@ Short definitions of the terms this document uses, with the page that goes deepe
 | **Receipt route, indexer** | The two ways of reaching it: the buyer's `txHash`, and a scheduled scan of events | [Payment flow](/docs/payment-flow) |
 | **Confirmations** | Blocks to wait before PAID; `CONFIRMATIONS_4663` | [Security](/docs/security) |
 | **Relay** | `POST /api/rpc/4663`, the same-origin RPC forwarder | [Wallet setup](/docs/wallet-setup) |
-| **USDG** | The dollar token on Robinhood Chain that the UI labels USDC | [What Payrail is](/docs/what-payrail-is) |
+| **USDG** | The dollar token on Robinhood Chain that the UI labels USDG | [What Payrail is](/docs/what-payrail-is) |
 
 The full list is at [/docs/glossary](/docs/glossary). The API surface is at [/docs/api](/docs/api). Questions that come up often are at [/faq](/faq).
 

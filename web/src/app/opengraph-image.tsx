@@ -59,7 +59,7 @@ export default function OpengraphImage() {
             <div style={{ flex: 1, background: ink }} />
           </div>
           <span style={{ fontSize: 27, color: "#a8a8a8", letterSpacing: "-0.01em" }}>
-            USDC invoices matched from onchain events. Funds go straight to the merchant and are never held.
+            USDG invoices matched from onchain events. Funds go straight to the merchant and are never held.
           </span>
         </div>
       </div>

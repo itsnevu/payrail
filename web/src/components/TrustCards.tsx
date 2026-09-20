@@ -20,7 +20,7 @@ await markPaid(invoice.id, receipt.transactionHash);`,
   },
   {
     figure: "Funds never held",
-    note: "PaymentProcessor forwards USDC straight to the merchant wallet inside the same transaction. The contract never holds anyone's balance.",
+    note: "PaymentProcessor forwards USDG straight to the merchant wallet inside the same transaction. The contract never holds anyone's balance.",
     file: "contracts/PaymentProcessor.sol",
     code: `function pay(bytes32 salt, address merchant, uint256 amount)
     external nonReentrant

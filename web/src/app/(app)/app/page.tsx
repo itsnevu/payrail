@@ -127,14 +127,14 @@ export default function Dashboard() {
         <StatTile
           tag="received"
           figure={formatUsdc(stats.totalReceived)}
-          unit="USDC"
+          unit="USDG"
           note={`${stats.paid} ${stats.paid === 1 ? "payment" : "payments"} verified`}
           loading={!loaded}
         />
         <StatTile
           tag="outstanding"
           figure={formatUsdc(stats.totalOutstanding)}
-          unit="USDC"
+          unit="USDG"
           note={`${stats.pending} awaiting payment`}
           loading={!loaded}
         />

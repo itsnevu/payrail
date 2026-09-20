@@ -81,7 +81,7 @@ export default function InvoiceDetail() {
         <div className="min-w-0 sm:shrink-0 sm:text-right">
           <p className="text-[13px] text-ink-soft">{inv.status === "PAID" ? "Received" : "Amount"}</p>
           <p className="tnum mt-1 text-[40px] leading-[0.95] tracking-[-0.02em] [overflow-wrap:anywhere] sm:text-[48px]">
-            {amountLabel} <small className="text-[0.4em] text-ink-soft">USDC</small>
+            {amountLabel} <small className="text-[0.4em] text-ink-soft">USDG</small>
           </p>
         </div>
       </header>
@@ -92,7 +92,7 @@ export default function InvoiceDetail() {
           <ShareLinkButton
             url={link}
             title={`Reminder: invoice from ${inv.merchant.name}`}
-            text={`Friendly reminder, this invoice is still open: ${inv.description}, ${amountLabel} USDC${inv.dueAt ? `, due ${new Date(inv.dueAt).toLocaleDateString("en-GB")}` : ""}.`}
+            text={`Friendly reminder, this invoice is still open: ${inv.description}, ${amountLabel} USDG${inv.dueAt ? `, due ${new Date(inv.dueAt).toLocaleDateString("en-GB")}` : ""}.`}
             className="btn-secondary"
             label="Send reminder"
           />
@@ -111,7 +111,7 @@ export default function InvoiceDetail() {
               url={link}
               merchantName={inv.merchant.name}
               description={inv.description}
-              amountLabel={`${amountLabel} USDC`}
+              amountLabel={`${amountLabel} USDG`}
               footer="Scan the code or send the link. It is marked PAID on its own once the payment lands."
             />
           )}
@@ -125,7 +125,7 @@ export default function InvoiceDetail() {
                 <div className="min-w-0 flex-1">
                   <h2 id="receipt-heading" className="text-[15px] font-medium">Paid {fmtDateTime(inv.payment.paidAt)}</h2>
                   <p className="mt-0.5 text-sm text-ink-soft">
-                    {formatUsdc(inv.payment.amount)} USDC from <span className="font-mono text-ink">{shortAddr(inv.payment.payer)}</span>
+                    {formatUsdc(inv.payment.amount)} USDG from <span className="font-mono text-ink">{shortAddr(inv.payment.payer)}</span>
                     {inv.payment.blockNumber ? <> · block <span className="tnum font-mono text-ink">{fmtBlock(inv.payment.blockNumber)}</span></> : null}
                   </p>
                   <p className="mt-3 break-all font-mono text-xs text-ink-soft">

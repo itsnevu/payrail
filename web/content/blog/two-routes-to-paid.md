@@ -12,7 +12,7 @@ This post is about what we changed, and the principle that made the change safe.
 
 ## The problem
 
-The "browser sends the txHash" route has one obvious point of failure: the browser. Tabs get closed. Networks drop. A buyer pays from a script because they are a developer and do not want to open a UI. A buyer pays from a company multisig that knows nothing about our page. In every one of those cases the USDC reached the merchant, the event is on chain, and our database says PENDING.
+The "browser sends the txHash" route has one obvious point of failure: the browser. Tabs get closed. Networks drop. A buyer pays from a script because they are a developer and do not want to open a UI. A buyer pays from a company multisig that knows nothing about our page. In every one of those cases the USDG reached the merchant, the event is on chain, and our database says PENDING.
 
 The merchant sees PENDING, sends "hi, did you pay?", and we are back to the problem we set out to remove.
 
